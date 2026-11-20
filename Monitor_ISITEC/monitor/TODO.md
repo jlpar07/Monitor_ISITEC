@@ -18,7 +18,7 @@ Cada tarea dice qué archivo tocar y qué datos ya existen.
 
 ---
 
-## Tarea 1 · Pantalla de Facturación
+## Tarea 1 · Pantalla de Facturación(Ya lista)
 **Archivo:** `js/vistas/facturacion.js`
 **Datos listos:** `Estado.facturas()` → id, proyectoId, numero, monto, emision, vencimiento, estado
 
