@@ -17,7 +17,7 @@ function enDias(n){
 }
 
 const DATOS_SEMILLA = {
-  version: 1,
+  version: 2,
 
   personas: [
     { id:'ap', nombre:'Angie Polanía',  iniciales:'AP', color:'c-coral',   rol:'Consultora senior',  horasDisponibles:160 },
@@ -109,17 +109,60 @@ const DATOS_SEMILLA = {
     { id:'f5', proyectoId:'portal',     numero:'FE-2033', monto:15000000, emision:enDias(-70), vencimiento:enDias(-40), estado:'pagada' }
   ],
 
-  /* Insumo del módulo de horas y productividad (pendiente: ver TODO.md).
+  /* Registro de horas (Clockify, hoy en migración).
+     'mes' indica el periodo: 0 = mes en curso, -1 = mes anterior...
+     La capacidad de cada persona (horasDisponibles) es mensual, así
+     que la ocupación se mide solo contra el mes en curso; el consumo
+     del proyecto se mide con todo el acumulado.
      'facturable' es la bandera que Oscar pidió para alimentar el ingreso. */
   registroHoras: [
-    { id:'h1', personaId:'ap', proyectoId:'portal',     horas:96, facturable:true  },
-    { id:'h2', personaId:'ap', proyectoId:'portal',     horas:14, facturable:false },
-    { id:'h3', personaId:'jr', proyectoId:'erp',        horas:132,facturable:true  },
-    { id:'h4', personaId:'jr', proyectoId:'erp',        horas:21, facturable:false },
-    { id:'h5', personaId:'js', proyectoId:'datos',      horas:88, facturable:true  },
-    { id:'h6', personaId:'cp', proyectoId:'planeacion', horas:54, facturable:true  },
-    { id:'h7', personaId:'ss', proyectoId:'erp',        horas:71, facturable:true  },
-    { id:'h8', personaId:'ss', proyectoId:'planeacion', horas:26, facturable:true  }
+    /* mes en curso */
+    { id:'h1',  mes:0,  personaId:'ap', proyectoId:'portal',     horas:96,  facturable:true  },
+    { id:'h2',  mes:0,  personaId:'ap', proyectoId:'portal',     horas:14,  facturable:false },
+    { id:'h3',  mes:0,  personaId:'jr', proyectoId:'erp',        horas:132, facturable:true  },
+    { id:'h4',  mes:0,  personaId:'jr', proyectoId:'erp',        horas:21,  facturable:false },
+    { id:'h5',  mes:0,  personaId:'js', proyectoId:'datos',      horas:88,  facturable:true  },
+    { id:'h6',  mes:0,  personaId:'cp', proyectoId:'planeacion', horas:54,  facturable:true  },
+    { id:'h7',  mes:0,  personaId:'ss', proyectoId:'erp',        horas:71,  facturable:true  },
+    { id:'h8',  mes:0,  personaId:'ss', proyectoId:'planeacion', horas:26,  facturable:true  },
+
+    /* mes -1 */
+    { id:'h9',  mes:-1, personaId:'jr', proyectoId:'erp',        horas:125, facturable:true  },
+    { id:'h10', mes:-1, personaId:'jr', proyectoId:'erp',        horas:15,  facturable:false },
+    { id:'h11', mes:-1, personaId:'jr', proyectoId:'datos',      horas:20,  facturable:false },
+    { id:'h12', mes:-1, personaId:'ss', proyectoId:'erp',        horas:64,  facturable:true  },
+    { id:'h13', mes:-1, personaId:'ss', proyectoId:'datos',      horas:50,  facturable:true  },
+    { id:'h14', mes:-1, personaId:'ss', proyectoId:'planeacion', horas:46,  facturable:true  },
+    { id:'h15', mes:-1, personaId:'ap', proyectoId:'portal',     horas:138, facturable:true  },
+    { id:'h16', mes:-1, personaId:'ap', proyectoId:'portal',     horas:12,  facturable:false },
+    { id:'h17', mes:-1, personaId:'cp', proyectoId:'portal',     horas:47,  facturable:true  },
+    { id:'h18', mes:-1, personaId:'cp', proyectoId:'planeacion', horas:110, facturable:true  },
+    { id:'h19', mes:-1, personaId:'js', proyectoId:'datos',      horas:105, facturable:true  },
+    { id:'h20', mes:-1, personaId:'js', proyectoId:'datos',      horas:15,  facturable:false },
+
+    /* mes -2 */
+    { id:'h21', mes:-2, personaId:'jr', proyectoId:'erp',        horas:145, facturable:true  },
+    { id:'h22', mes:-2, personaId:'jr', proyectoId:'erp',        horas:12,  facturable:false },
+    { id:'h23', mes:-2, personaId:'ss', proyectoId:'erp',        horas:100, facturable:true  },
+    { id:'h24', mes:-2, personaId:'ap', proyectoId:'portal',     horas:140, facturable:true  },
+    { id:'h25', mes:-2, personaId:'ap', proyectoId:'portal',     horas:15,  facturable:false },
+    { id:'h26', mes:-2, personaId:'cp', proyectoId:'portal',     horas:60,  facturable:true  },
+    { id:'h27', mes:-2, personaId:'cp', proyectoId:'datos',      horas:50,  facturable:true  },
+    { id:'h28', mes:-2, personaId:'js', proyectoId:'datos',      horas:110, facturable:true  },
+    { id:'h29', mes:-2, personaId:'js', proyectoId:'datos',      horas:10,  facturable:false },
+
+    /* mes -3 */
+    { id:'h30', mes:-3, personaId:'jr', proyectoId:'erp',        horas:150, facturable:true  },
+    { id:'h31', mes:-3, personaId:'ss', proyectoId:'erp',        horas:105, facturable:true  },
+    { id:'h32', mes:-3, personaId:'ap', proyectoId:'portal',     horas:150, facturable:true  },
+    { id:'h33', mes:-3, personaId:'cp', proyectoId:'portal',     horas:60,  facturable:true  },
+    { id:'h34', mes:-3, personaId:'js', proyectoId:'portal',     horas:60,  facturable:true  },
+
+    /* mes -4 */
+    { id:'h35', mes:-4, personaId:'jr', proyectoId:'erp',        horas:140, facturable:true  },
+    { id:'h36', mes:-4, personaId:'ss', proyectoId:'erp',        horas:120, facturable:true  },
+    { id:'h37', mes:-4, personaId:'ap', proyectoId:'erp',        horas:140, facturable:true  },
+    { id:'h38', mes:-4, personaId:'js', proyectoId:'erp',        horas:100, facturable:true  }
   ],
 
   /* ids de alertas que el usuario ya marcó como atendidas */

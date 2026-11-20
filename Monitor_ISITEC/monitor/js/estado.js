@@ -92,6 +92,66 @@ const Estado = (function () {
     return { fecha: iso, desvioDias: dias(p.finPlan, iso) };
   }
 
+  /* --- cálculos de horas y productividad ------------------- */
+  /* Feedback de Oscar (4 nov): horas disponibles vs invertidas,
+     productividad (las horas deben reflejarse en avance) y horas
+     facturables como insumo del ingreso. */
+
+  const UMBRAL_PRODUCTIVIDAD = 15;   // pts de consumo por encima del avance
+
+  const sumaHoras = lista => lista.reduce((s, r) => s + r.horas, 0);
+  const horasDelMes = () => datos.registroHoras.filter(r => (r.mes || 0) === 0);
+
+  /* Ocupación de una persona en el mes en curso */
+  function horasPersona (personaId) {
+    const per = persona(personaId);
+    const reg = horasDelMes().filter(r => r.personaId === personaId);
+    const invertidas  = sumaHoras(reg);
+    const facturables = sumaHoras(reg.filter(r => r.facturable));
+    const disponibles = per ? per.horasDisponibles : 0;
+    return {
+      disponibles, invertidas, facturables,
+      libres: disponibles - invertidas,
+      ocupacion: disponibles ? Math.round(invertidas / disponibles * 100) : 0,
+      pctFacturable: invertidas ? Math.round(facturables / invertidas * 100) : 0,
+      proyectos: [...new Set(reg.map(r => r.proyectoId))]
+    };
+  }
+
+  /* Consumo acumulado del proyecto frente a su presupuesto y su avance */
+  function horasProyecto (p) {
+    const reg = datos.registroHoras.filter(r => r.proyectoId === p.id);
+    const consumidas  = sumaHoras(reg);
+    const facturables = sumaHoras(reg.filter(r => r.facturable));
+    const pctConsumo  = p.horasPresupuesto ? Math.round(consumidas / p.horasPresupuesto * 100) : 0;
+    const brecha      = pctConsumo - p.avanceReal;          // + = gasta más de lo que avanza
+    /* Valor hora implícito del contrato: mientras no tengamos la tarifa
+       real del sistema contable, se aproxima como contrato / horas. */
+    const valorHora   = p.horasPresupuesto ? p.valorContrato / p.horasPresupuesto : 0;
+    const facturado   = facturas().filter(f => f.proyectoId === p.id).reduce((s, f) => s + f.monto, 0);
+    const ingresoHoras = Math.round(facturables * valorHora);
+    return {
+      presupuesto: p.horasPresupuesto, consumidas, facturables,
+      noFacturables: consumidas - facturables,
+      restantes: p.horasPresupuesto - consumidas,
+      pctConsumo, brecha, valorHora, ingresoHoras, facturado,
+      sinFacturar: Math.max(0, ingresoHoras - facturado),
+      porPersona: [...new Set(reg.map(r => r.personaId))].map(id => {
+        const rp = reg.filter(r => r.personaId === id);
+        return { personaId: id, horas: sumaHoras(rp), facturables: sumaHoras(rp.filter(r => r.facturable)),
+                 mes: sumaHoras(rp.filter(r => (r.mes || 0) === 0)) };
+      }).sort((a, b) => b.horas - a.horas)
+    };
+  }
+
+  /* Semáforo de productividad: ¿las horas se están volviendo avance? */
+  function productividad (p) {
+    const b = horasProyecto(p).brecha;
+    if (b > UMBRAL_PRODUCTIVIDAD) return { clave:'rojo',  texto:'Consumo sobre el avance' };
+    if (b > 5)                    return { clave:'ambar', texto:'Vigilar consumo' };
+    return { clave:'verde', texto:'Productivo' };
+  }
+
   /* --- cálculos de tareas ---------------------------------- */
   const estaVencida = t => t.estado !== 'completada' && diasDesdeHoy(t.fechaLimite) < 0;
   const enRiesgo    = t => t.estado !== 'completada' && !!t.riesgo;
@@ -215,6 +275,7 @@ const Estado = (function () {
     proyectos, proyecto, tareas, tareasDe, personas, persona, clientes, cliente,
     facturas, registroHoras,
     avanceEsperado, desviacion, semaforo, proyeccionCierre,
+    horasDelMes, horasPersona, horasProyecto, productividad, UMBRAL_PRODUCTIVIDAD,
     estaVencida, enRiesgo, tareasVencidas, tareasEnRiesgo, incidencias,
     alertas, alertasAbiertas, totales,
     alternarTarea, marcarFacturaPagada, crearTarea, reasignarTarea, guardarMitigacion, marcarRiesgo, atenderAlerta,

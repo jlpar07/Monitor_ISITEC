@@ -1,8 +1,6 @@
 /* ===========================================================
    vistas/proyecto.js · Detalle de un proyecto
    Pestañas: Tareas · Riesgos · Horas · Facturación
-   Las dos primeras están funcionando. Las otras dos quedan
-   asignadas al equipo (ver TODO.md).
    =========================================================== */
 
 const VistaProyecto = {
@@ -85,15 +83,73 @@ const VistaProyecto = {
   contenidoPestana (p) {
     if (this.pestana === 'tareas')  return this.panelTareas(p);
     if (this.pestana === 'riesgos') return this.panelRiesgos(p);
-    if (this.pestana === 'horas')   return this.panelPendiente('Horas y productividad',
-      'Esta pestaña debe mostrar las horas del proyecto por persona y qué tanto avance generaron.',
-      ['Horas presupuestadas contra horas invertidas (los datos ya están en <code>datos.js → registroHoras</code>)',
-       'Productividad por persona: horas invertidas contra avance aportado',
-       'Horas facturables contra no facturables, que es el insumo del ingreso del proyecto',
-       'Alerta cuando el consumo de horas supera el avance en más de 15 puntos'],
-      'Pendiente del equipo');
+    if (this.pestana === 'horas')   return this.panelHoras(p);
     if (this.pestana === 'facturacion') return this.panelFacturacion(p);
     return '';
+  },
+
+  /* --- pestaña HORAS --------------------------------------- */
+  panelHoras (p) {
+    const h = Estado.horasProyecto(p);
+    const prod = Estado.productividad(p);
+    const u = Estado.UMBRAL_PRODUCTIVIDAD;
+    const n = x => x.toLocaleString('es-CO');
+
+    const aviso = prod.clave === 'rojo'
+      ? `<div class="alerta" style="border-color:#f3c4c9;background:#fff8f8;margin-bottom:14px">
+           <span class="icono" style="background:var(--rojo-claro);color:var(--rojo)">!</span>
+           <div class="txt"><strong>Las horas no se están convirtiendo en avance</strong>
+             <small>Se ha consumido el ${h.pctConsumo}% de las horas y el proyecto va en ${p.avanceReal}% de avance:
+             ${h.brecha} pts de brecha, por encima del umbral de ${u}.</small></div>
+         </div>` : '';
+
+    return `
+      ${aviso}
+      <section class="kpis">
+        <article class="kpi">
+          <div class="kpi-top"><span class="kpi-label">Horas consumidas</span></div>
+          <strong>${n(h.consumidas)}</strong><p>de ${n(h.presupuesto)} presupuestadas</p>
+        </article>
+        <article class="kpi">
+          <div class="kpi-top"><span class="kpi-label">Consumo vs avance</span></div>
+          <strong class="${prod.clave}">${h.brecha > 0 ? '+' : ''}${h.brecha} pts</strong>
+          <p>${h.pctConsumo}% de horas · ${p.avanceReal}% de avance</p>
+        </article>
+        <article class="kpi">
+          <div class="kpi-top"><span class="kpi-label">Horas facturables</span></div>
+          <strong>${n(h.facturables)}</strong><p>${n(h.noFacturables)} h no facturables</p>
+        </article>
+        <article class="kpi">
+          <div class="kpi-top"><span class="kpi-label">Ingreso por horas</span></div>
+          <strong>${UI.dinero(h.ingresoHoras)}</strong><p>${UI.dinero(h.sinFacturar)} aún sin facturar</p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-cabeza">
+          <div><h2>Horas por persona</h2><p>Acumulado del proyecto y lo registrado este mes</p></div>
+          ${UI.chipEstado(prod)}
+        </div>
+        ${h.porPersona.length ? `<div style="overflow-x:auto"><table class="tabla"><thead><tr>
+          <th>Persona</th><th>Horas acumuladas</th><th>Facturables</th><th>Este mes</th><th style="width:28%">Participación</th>
+        </tr></thead><tbody>${h.porPersona.map(x => {
+          const per = Estado.persona(x.personaId);
+          const part = h.consumidas ? Math.round(x.horas / h.consumidas * 100) : 0;
+          return `<tr>
+            <td><span class="persona">${UI.avatar(x.personaId)}
+              <span><strong>${UI.escapar(per.nombre)}</strong><br><small class="sub">${UI.escapar(per.rol)}</small></span></span></td>
+            <td><strong>${n(x.horas)} h</strong></td>
+            <td>${n(x.facturables)} h</td>
+            <td>${x.mes ? n(x.mes) + ' h' : '<span class="sub">—</span>'}</td>
+            <td class="celda-avance"><div class="rotulos"><span>${part}% del proyecto</span></div>${UI.barra(part)}</td>
+          </tr>`;
+        }).join('')}</tbody></table></div>`
+        : UI.vacio('Sin horas registradas', 'Este proyecto todavía no tiene horas en el registro.')}
+        <p class="sub" style="margin:14px 0 0;font-size:12.5px">
+          Valor hora aproximado: ${UI.dineroLargo(Math.round(h.valorHora))} (contrato ÷ horas presupuestadas), por validar
+          con la tarifa del sistema contable.
+        </p>
+      </section>`;
   },
 
   panelFacturacion (p) {

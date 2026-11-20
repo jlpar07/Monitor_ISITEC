@@ -37,20 +37,28 @@ También hay que llenar la pestaña **Facturación** dentro del detalle de proye
 
 ---
 
-## Tarea 2 · Pantalla de Horas y equipo
+## Tarea 2 · Pantalla de Horas y equipo (Ya lista)
 **Archivo:** `js/vistas/horas.js`
 **Datos listos:** `Estado.registroHoras()` y `Estado.personas()` (campo `horasDisponibles`)
 
 Responde al feedback de Oscar del 4 de noviembre. Falta:
 
-- [ ] Tabla por persona: horas disponibles, invertidas, facturables y % de ocupación
-- [ ] Tabla por proyecto: horas presupuestadas (`proyecto.horasPresupuesto`) contra consumidas
-- [ ] **Productividad**: comparar el % de horas consumidas contra el `avanceReal` del proyecto
-- [ ] Marcar en rojo los proyectos donde el consumo de horas va más de 15 puntos
+- [x] Tabla por persona: horas disponibles, invertidas, facturables y % de ocupación
+- [x] Tabla por proyecto: horas presupuestadas (`proyecto.horasPresupuesto`) contra consumidas
+- [x] **Productividad**: comparar el % de horas consumidas contra el `avanceReal` del proyecto
+- [x] Marcar en rojo los proyectos donde el consumo de horas va más de 15 puntos
       por encima del avance
-- [ ] Horas facturables acumuladas por proyecto, como insumo del ingreso
+- [x] Horas facturables acumuladas por proyecto, como insumo del ingreso
 
-Igual hay que llenar la pestaña **Horas** del detalle de proyecto.
+- [x] Pestaña **Horas** del detalle de proyecto: horas por persona, consumo vs avance e ingreso
+
+Notas de implementación:
+- `registroHoras` ahora tiene el campo `mes` (0 = mes en curso, -1 = anterior...).
+  La ocupación por persona usa solo el mes en curso; el consumo del proyecto, todo el acumulado.
+- Los cálculos están en `js/estado.js`: `horasPersona()`, `horasProyecto()`, `productividad()`.
+- El valor hora se aproxima como `valorContrato / horasPresupuesto` hasta tener la tarifa real
+  del sistema contable (sigue "Por validar" con ISITEC).
+- Se subió `DATOS_SEMILLA.version` a 2: al abrir la app se recargan los datos de ejemplo.
 
 ---
 

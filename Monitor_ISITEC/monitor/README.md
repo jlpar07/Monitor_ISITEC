@@ -19,7 +19,8 @@ Esta versión parte la aplicación en cinco pantallas y deja el resumen con lo m
 | Proyectos | Listado con avance real contra esperado y cierre proyectado |
 | Detalle de proyecto | Tareas, riesgos, horas y facturación de un proyecto |
 | Alertas | Lo que el sistema detectó solo, con opción de marcar como atendida |
-| Facturación · Horas | Módulos en construcción |
+| Facturación | Facturas por cobrar, vencidas y facturado contra avance |
+| Horas y equipo | Ocupación por persona, productividad (horas vs avance) e ingreso por horas facturables |
 
 Además, ahora la aplicación **funciona de verdad**: las acciones cambian los datos
 y quedan guardadas en el navegador, no son solo mensajes en pantalla.
