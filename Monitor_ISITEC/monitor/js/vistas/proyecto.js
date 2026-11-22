@@ -131,9 +131,9 @@ const VistaProyecto = {
     UI.modal(`
       <h2>Cómo se calculan los indicadores</h2>
       <p class="modal-sub">${UI.escapar(p.nombre)} · método de valor ganado</p>
-      <table class="tabla formulas">
+      <div class="tabla-desplazable" tabindex="0"><table class="tabla formulas">
         <tbody>
-          <tr><td><b>Presupuesto de costo (BAC)</b><br><small class="sub">del sistema contable</small></td><td>${m(d.bac)}</td></tr>
+          <tr><td><b>Presupuesto de costo (BAC)</b><br><small class="sub">dato de ejemplo</small></td><td>${m(d.bac)}</td></tr>
           <tr><td><b>Valor planeado (PV)</b><br><small class="sub">BAC × avance esperado (${Estado.avanceEsperado(p)}%)</small></td><td>${m(d.pv)}</td></tr>
           <tr><td><b>Valor ganado (EV)</b><br><small class="sub">BAC × avance real (${p.avanceReal}%)</small></td><td>${m(d.ev)}</td></tr>
           <tr><td><b>Costo real (AC)</b><br><small class="sub">ejecutado a la fecha</small></td><td>${m(d.ac)}</td></tr>
@@ -142,7 +142,7 @@ const VistaProyecto = {
           <tr><td><b>Costo al cierre (EAC)</b> = BAC ÷ CPI</td><td><b>${m(d.eac)}</b></td></tr>
           <tr><td><b>Margen</b> = (contrato − EAC) ÷ contrato<br><small class="sub">contrato ${m(p.valorContrato)}</small></td><td class="${d.claveMargen}"><b>${UI.pct(d.margenProyectado)}</b></td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p class="sub" style="font-size:14.5px;margin:14px 0 0">
         Un índice de 1,00 significa que el proyecto va exactamente según el plan. Verde ≥ 0,95 · ámbar ≥ 0,85 · rojo por debajo.
         Los costos son datos de ejemplo hasta conectar el sistema contable de ISITEC.
@@ -220,7 +220,7 @@ const VistaProyecto = {
           <div><h2>Horas por persona</h2><p>Acumulado del proyecto y lo registrado este mes</p></div>
           ${UI.chipEstado(prod)}
         </div>
-        ${h.porPersona.length ? `<div style="overflow-x:auto"><table class="tabla"><thead><tr>
+        ${h.porPersona.length ? `<div class="tabla-desplazable" tabindex="0"><table class="tabla"><thead><tr>
           <th>Persona</th><th>Horas acumuladas</th><th>Facturables</th><th>Este mes</th><th style="width:28%">Participación</th>
         </tr></thead><tbody>${h.porPersona.map(x => {
           const per = Estado.persona(x.personaId);
@@ -255,7 +255,7 @@ const VistaProyecto = {
           </span>
         </div>
         <p class="sub" style="margin-bottom:16px">${UI.dineroLargo(pendiente)} pendiente de cobro</p>
-        ${facturas.length ? `<div style="overflow-x:auto"><table class="tabla"><thead><tr>
+        ${facturas.length ? `<div class="tabla-desplazable" tabindex="0"><table class="tabla"><thead><tr>
           <th>Número</th><th>Monto</th><th>Emisión</th><th>Vencimiento</th><th>Estado</th><th></th>
         </tr></thead><tbody>${facturas.map(f => {
           const vencida = f.estado === 'pendiente' && Estado.diasDesdeHoy(f.vencimiento) < 0;
@@ -279,8 +279,8 @@ const VistaProyecto = {
     if (!tareas.length) return `<section class="panel">${UI.vacio('Sin tareas','Crea la primera con el botón Nueva tarea.')}</section>`;
 
     return `
-      <section class="panel" style="padding:18px 20px">
-        <table class="tabla">
+      <section class="panel">
+        <div class="tabla-desplazable" tabindex="0"><table class="tabla">
           <thead><tr>
             <th style="width:38%">Tarea</th><th>Responsable</th><th>Fecha límite</th>
             <th>Prioridad</th><th>Riesgo</th><th></th>
@@ -294,7 +294,7 @@ const VistaProyecto = {
                 <tr class="${completada ? 'completada' : ''}">
                   <td>
                     <div class="proyecto-nombre">
-                      <span class="casilla ${completada ? 'marcada' : ''}" data-marcar="${t.id}">${completada ? '✓' : ''}</span>
+                      <button type="button" class="casilla ${completada ? 'marcada' : ''}" data-marcar="${t.id}" aria-label="${completada ? 'Reabrir' : 'Completar'} tarea: ${UI.escapar(t.nombre)}">${completada ? '✓' : ''}</button>
                       <strong>${UI.escapar(t.nombre)}</strong>
                       ${t.esIncidencia ? '<span class="chip gris">Incidencia</span>' : ''}
                     </div>
@@ -311,7 +311,7 @@ const VistaProyecto = {
                 </tr>`;
             }).join('')}
           </tbody>
-        </table>
+        </table></div>
       </section>`;
   },
 

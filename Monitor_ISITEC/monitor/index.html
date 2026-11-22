@@ -12,25 +12,30 @@
 <body>
   <div class="app">
     <aside class="sidebar">
-      <a class="brand" href="#/resumen">
-        <span class="brand-mark">I</span>
-        <span><strong>ISITEC</strong><small>MONITOR</small></span>
-      </a>
+      <div class="sidebar-cabecera">
+        <a class="brand" href="#/resumen">
+          <span class="brand-mark">I</span>
+          <span><strong>ISITEC</strong><small>MONITOR</small></span>
+        </a>
+        <button type="button" class="boton-menu" id="btnMenu" aria-expanded="false" aria-controls="menuLateral">Menú</button>
+      </div>
 
-      <nav class="nav" id="nav">
-        <a class="nav-item" href="#/resumen"      data-ruta="resumen">Resumen</a>
-        <a class="nav-item" href="#/proyectos"    data-ruta="proyectos">Proyectos<b id="navProyectos">0</b></a>
-        <a class="nav-item" href="#/alertas"      data-ruta="alertas">Alertas<b class="rojo" id="navAlertas">0</b></a>
-        <a class="nav-item" href="#/facturacion"  data-ruta="facturacion">Facturación</a>
-        <a class="nav-item" href="#/horas"        data-ruta="horas">Horas y equipo</a>
-        <a class="nav-item" href="#/calidad"      data-ruta="calidad">Calidad y pruebas<b class="ambar" id="navCalidad">0</b></a>
-      </nav>
+      <div class="sidebar-menu" id="menuLateral">
+        <nav class="nav" id="nav" aria-label="Navegación principal">
+          <a class="nav-item" href="#/resumen"      data-ruta="resumen">Resumen</a>
+          <a class="nav-item" href="#/proyectos"    data-ruta="proyectos">Proyectos<b id="navProyectos">0</b></a>
+          <a class="nav-item" href="#/alertas"      data-ruta="alertas">Alertas<b class="rojo" id="navAlertas">0</b></a>
+          <a class="nav-item" href="#/facturacion"  data-ruta="facturacion">Facturación</a>
+          <a class="nav-item" href="#/horas"        data-ruta="horas">Horas y equipo</a>
+          <a class="nav-item" href="#/calidad"      data-ruta="calidad">Calidad y pruebas<b class="ambar" id="navCalidad">0</b></a>
+        </nav>
 
-      <div class="sidebar-pie">
-        <button class="nav-item nav-plano" id="btnReiniciar" title="Vuelve a los datos de ejemplo">Reiniciar datos</button>
-        <div class="perfil">
-          <span class="avatar">OP</span>
-          <span><strong>Oscar Panadero</strong><small>Gerente de proyecto</small></span>
+        <div class="sidebar-pie">
+          <button class="nav-item nav-plano" id="btnReiniciar" title="Vuelve a los datos de ejemplo">Reiniciar datos</button>
+          <div class="perfil">
+            <span class="avatar">OP</span>
+            <span><strong>Oscar Panadero</strong><small>Gerente de proyecto</small></span>
+          </div>
         </div>
       </div>
     </aside>

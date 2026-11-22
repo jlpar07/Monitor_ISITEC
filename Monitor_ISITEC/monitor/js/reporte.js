@@ -271,7 +271,7 @@ const Reporte = (function () {
 
   function csv ({ proyectoId, interno }) {
     const proyectos = proyectoId ? [Estado.proyecto(proyectoId)] : Estado.proyectos();
-    const cab = ['Proyecto', 'Cliente', 'Lider', 'Avance real', 'Avance esperado', 'Desviacion', 'Estado',
+    const cab = ['Proyecto', 'Cliente', 'Líder', 'Avance real', 'Avance esperado', 'Desviación', 'Estado',
                  'Cierre proyectado', 'Tareas vencidas', 'Riesgos abiertos', 'Incidencias abiertas'];
     if (interno) cab.push('SPI', 'CPI', 'Costo al cierre', 'Margen proyectado', 'Horas consumidas', 'Horas vs avance (pts)');
     const filas = [cab];
