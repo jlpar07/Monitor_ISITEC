@@ -196,7 +196,7 @@ const VistaHoras = {
             </tbody>
           </table>
         </div>
-        <p class="sub" style="margin:14px 0 0;font-size:12.5px">
+        <p class="sub" style="margin:14px 0 0;font-size:14.5px">
           Mientras no tengamos la tarifa del sistema contable, el valor hora se aproxima como
           valor del contrato ÷ horas presupuestadas. "Sin facturar" es trabajo facturable ya hecho
           que todavía no tiene factura emitida.

@@ -143,7 +143,7 @@ const VistaProyecto = {
           <tr><td><b>Margen</b> = (contrato − EAC) ÷ contrato<br><small class="sub">contrato ${m(p.valorContrato)}</small></td><td class="${d.claveMargen}"><b>${UI.pct(d.margenProyectado)}</b></td></tr>
         </tbody>
       </table>
-      <p class="sub" style="font-size:12.5px;margin:14px 0 0">
+      <p class="sub" style="font-size:14.5px;margin:14px 0 0">
         Un índice de 1,00 significa que el proyecto va exactamente según el plan. Verde ≥ 0,95 · ámbar ≥ 0,85 · rojo por debajo.
         Los costos son datos de ejemplo hasta conectar el sistema contable de ISITEC.
       </p>
@@ -235,7 +235,7 @@ const VistaProyecto = {
           </tr>`;
         }).join('')}</tbody></table></div>`
         : UI.vacio('Sin horas registradas', 'Este proyecto todavía no tiene horas en el registro.')}
-        <p class="sub" style="margin:14px 0 0;font-size:12.5px">
+        <p class="sub" style="margin:14px 0 0;font-size:14.5px">
           Valor hora aproximado: ${UI.dineroLargo(Math.round(h.valorHora))} (contrato ÷ horas presupuestadas), por validar
           con la tarifa del sistema contable.
         </p>
@@ -300,7 +300,7 @@ const VistaProyecto = {
                     </div>
                   </td>
                   <td>${UI.personaLinea(t.responsableId)}</td>
-                  <td style="color:${colorFecha};font-size:12.5px">
+                  <td style="color:${colorFecha};font-size:14.5px">
                     ${UI.fecha(t.fechaLimite)}<br><small>${completada ? 'Completada' : UI.vencimiento(t.fechaLimite)}</small>
                   </td>
                   <td>${UI.chipPrioridad(t.prioridad)}</td>
@@ -347,7 +347,7 @@ const VistaProyecto = {
           ${UI.avatar(t.responsableId)}
         </div>
         <div class="mitigacion">
-          <b style="font-size:11.5px;color:#8e9bb3;letter-spacing:.6px">PLAN DE MITIGACIÓN</b><br>
+          <b style="font-size:13px;color:#8e9bb3;letter-spacing:.6px">PLAN DE MITIGACIÓN</b><br>
           ${t.riesgo.mitigacion
             ? UI.escapar(t.riesgo.mitigacion)
             : '<em>Sin plan definido todavía.</em>'}

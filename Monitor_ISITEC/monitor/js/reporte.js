@@ -328,7 +328,7 @@ const Reporte = (function () {
         <button class="activo" data-formato="pdf">PDF</button>
         <button data-formato="csv">CSV (Excel)</button>
       </div>
-      <p class="sub" id="ex_ayuda" style="font-size:12.5px;margin:10px 0 0">Se abre la ventana de impresión: elige <b>Guardar como PDF</b>.</p>
+      <p class="sub" id="ex_ayuda" style="font-size:14.5px;margin:10px 0 0">Se abre la ventana de impresión: elige <b>Guardar como PDF</b>.</p>
 
       ${historial.length ? `
         <div class="historial">

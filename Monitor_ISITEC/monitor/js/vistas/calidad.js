@@ -107,15 +107,17 @@ const VistaCalidad = {
 
   /* Columnas agrupadas en SVG: ≤ 24 px, punta redondeada de 4 px,
      base recta, 2 px de aire entre las dos barras de cada semana. */
-  graficaBarras (semanas) {
-    const W = 1040, H = 270, m = { t: 14, r: 8, b: 30, l: 30 };
+  graficaBarras (semanas, anchoReal) {
+    /* Se dibuja al ancho real del contenedor (1 unidad = 1 px), así
+       las barras y el texto no se deforman en pantallas anchas. */
+    const W = Math.max(480, Math.round(anchoReal || 1040)), H = 290, m = { t: 14, r: 8, b: 34, l: 34 };
     const ancho = W - m.l - m.r, alto = H - m.t - m.b;
     const maxDato = Math.max(1, ...semanas.map(s => Math.max(s.reportadas, s.cerradas)));
     const tope = Math.max(4, Math.ceil(maxDato / 2) * 2);
     const paso = tope <= 6 ? 1 : 2;
     const y = v => m.t + alto - v / tope * alto;
     const banda = ancho / semanas.length;
-    const barra = Math.min(20, (banda - 24) / 2);
+    const barra = Math.min(24, (banda - 24) / 2);
 
     const columna = (x, v, color) => {
       if (!v) return '';
@@ -127,7 +129,7 @@ const VistaCalidad = {
     let ejes = '';
     for (let v = 0; v <= tope; v += paso) {
       ejes += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="#eef1f6" stroke-width="1"/>
-               <text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" class="eje">${v}</text>`;
+               <text x="${m.l - 10}" y="${y(v) + 5}" text-anchor="end" class="eje">${v}</text>`;
     }
 
     const grupos = semanas.map((s, i) => {
@@ -178,7 +180,7 @@ const VistaCalidad = {
             }).join('')}</tbody>
           </table>
         </div>
-        <p class="sub" style="margin:14px 0 0;font-size:12.5px">
+        <p class="sub" style="margin:14px 0 0;font-size:14.5px">
           La barra de "% de las horas" está a escala 1:5 (20% de las horas llena la barra). Más de 6% se marca en ámbar.
         </p>
       </section>`;
@@ -230,7 +232,7 @@ const VistaCalidad = {
                   ${mostrarProyecto ? `<br><small class="sub">${UI.escapar(p.nombre)}</small>` : ''}</td>
                 <td>${UI.personaLinea(t.responsableId)}</td>
                 <td>${UI.chipPrioridad(t.prioridad)}</td>
-                <td style="font-size:12.5px">${UI.fecha(t.fechaReporte)}<br>
+                <td style="font-size:14.5px">${UI.fecha(t.fechaReporte)}<br>
                   <small class="sub">${abierta
                     ? (edad === 0 ? 'Hoy' : `Abierta hace ${edad} día${edad === 1 ? '' : 's'}`)
                     : `Cerrada en ${resolucion} día${resolucion === 1 ? '' : 's'}`}</small></td>
@@ -261,6 +263,23 @@ const VistaCalidad = {
         location.hash = '#/proyecto/' + tr.dataset.irCalidad;
       }));
     VistaCalidad.montarAcciones(raiz);
+    this.ajustarGrafica(raiz);
+    if (!this._escuchaResize) {
+      this._escuchaResize = true;
+      let t;
+      window.addEventListener('resize', () => {
+        clearTimeout(t);
+        t = setTimeout(() => { const r = document.querySelector('#vista'); if (r.querySelector('#graficaIncidencias')) this.ajustarGrafica(r); }, 120);
+      });
+    }
+  },
+
+  /* Redibuja la gráfica al ancho que realmente tiene en pantalla */
+  ajustarGrafica (raiz) {
+    const caja = raiz.querySelector('#graficaIncidencias');
+    if (!caja || !this._semanas) return;
+    const svg = caja.querySelector('svg');
+    svg.outerHTML = this.graficaBarras(this._semanas, caja.clientWidth);
     this.montarTooltip(raiz);
   },
 

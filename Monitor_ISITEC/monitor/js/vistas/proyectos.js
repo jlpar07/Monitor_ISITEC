@@ -114,7 +114,7 @@ const VistaProyectos = {
             <div class="rotulos" style="margin:5px 0 0"><span>esperado ${esperado}%</span></div>
           </td>
           <td>${UI.chipEstado(sem)}</td>
-          <td style="font-size:12.5px">${cierre}</td>
+          <td style="font-size:14.5px">${cierre}</td>
         </tr>`;
     }).join('');
 
