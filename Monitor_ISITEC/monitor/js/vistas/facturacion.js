@@ -25,7 +25,7 @@ const VistaFacturacion = {
         </div>
       </section>
 
-      <section class="kpis" style="grid-template-columns:repeat(3,1fr)">
+      <section class="kpis kpis-tres">
         <article class="kpi">
           <div class="kpi-top"><span class="kpi-label">Por cobrar</span></div>
           <strong>${UI.dinero(total)}</strong><p>${pendientes.length} facturas pendientes</p>
@@ -62,7 +62,7 @@ const VistaFacturacion = {
           <span class="sub">${facturas.length} factura${facturas.length === 1 ? '' : 's'}</span>
         </div>
         ${facturas.length ? `
-          <div style="overflow-x:auto">
+          <div class="tabla-desplazable" tabindex="0">
             <table class="tabla">
               <thead><tr>
                 <th>Número</th><th>Proyecto</th><th>Monto</th><th>Emisión</th>

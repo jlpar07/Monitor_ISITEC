@@ -26,7 +26,7 @@ const VistaCalidad = {
           <h1>Calidad y pruebas</h1>
           <p class="sub">Incidencias reportadas, cuánto tiempo toma atenderlas y cómo evolucionan.</p>
         </div>
-        <div style="display:flex;gap:10px;align-items:center">
+        <div class="encabezado-acciones">
           <select id="filtroCalidadProyecto" class="selector" aria-label="Filtrar por proyecto">
             <option value="todos">Todos los proyectos</option>
             ${Estado.proyectos().map(p => `<option value="${p.id}" ${this.filtroProyecto === p.id ? 'selected' : ''}>${UI.escapar(p.nombre)}</option>`).join('')}
@@ -96,11 +96,11 @@ const VistaCalidad = {
         <p class="lectura">${tendencia}</p>
         <details class="ver-tabla">
           <summary>Ver datos como tabla</summary>
-          <table class="tabla" style="margin-top:10px">
+          <div class="tabla-desplazable" tabindex="0"><table class="tabla" style="margin-top:10px">
             <thead><tr><th>Semana</th><th>Reportadas</th><th>Cerradas</th><th>Abiertas al cierre</th></tr></thead>
             <tbody>${semanas.map(s => `<tr><td>${UI.fecha(s.inicio)} – ${UI.fecha(s.fin)}</td>
               <td>${s.reportadas}</td><td>${s.cerradas}</td><td>${s.abiertas}</td></tr>`).join('')}</tbody>
-          </table>
+          </table></div>
         </details>
       </section>`;
   },
@@ -156,7 +156,7 @@ const VistaCalidad = {
         <div class="panel-cabeza">
           <div><h2>Incidencias por proyecto</h2><p>Haz clic en un proyecto para ver sus incidencias</p></div>
         </div>
-        <div style="overflow-x:auto">
+        <div class="tabla-desplazable" tabindex="0">
           <table class="tabla">
             <thead><tr>
               <th>Proyecto</th><th>Total</th><th>Abiertas</th><th>Críticas abiertas</th>
@@ -215,7 +215,7 @@ const VistaCalidad = {
   /* Tabla reutilizable (también la usa la pestaña Calidad del detalle) */
   tablaIncidencias (lista, mostrarProyecto) {
     return `
-      <div style="overflow-x:auto">
+      <div class="tabla-desplazable" tabindex="0">
         <table class="tabla">
           <thead><tr>
             <th style="width:34%">Incidencia</th><th>Responsable</th><th>Severidad</th>
@@ -314,8 +314,8 @@ const VistaCalidad = {
       g.addEventListener('mousemove', e => {
         const r = caja.getBoundingClientRect();
         let x = e.clientX - r.left + 14;
-        if (x + 190 > r.width) x = e.clientX - r.left - 194;
-        tip.style.left = x + 'px';
+        if (x + tip.offsetWidth > r.width) x = e.clientX - r.left - tip.offsetWidth - 14;
+        tip.style.left = Math.max(0, x) + 'px';
         tip.style.top = Math.max(0, e.clientY - r.top - 40) + 'px';
       });
     });

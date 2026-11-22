@@ -362,3 +362,56 @@ a{color:inherit;text-decoration:none}
   .dos-columnas{grid-template-columns:1fr}
   .medidas{grid-template-columns:repeat(2,1fr)}
 }
+
+/* Navegación y lectura en pantallas pequeñas y de proyección */
+.sidebar{overflow-y:auto}
+.sidebar-menu{display:flex;flex:1;flex-direction:column;gap:16px}
+.boton-menu{display:none}
+.vista{margin-inline:auto}
+.etiqueta,.miga,.tabla th{color:#607089}
+.tabla-desplazable{overflow-x:auto}
+.tabla-desplazable:focus-visible,.sidebar :focus-visible{outline:2px solid #6e9fff;outline-offset:2px}
+.casilla{padding:0}
+.kpis-tres{grid-template-columns:repeat(3,minmax(0,1fr))}
+.encabezado-acciones{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.encabezado-acciones .selector{max-width:100%}
+.proyecto-nombre a:hover{text-decoration:underline}
+
+@media screen and (max-width:900px){
+  .sidebar{width:190px;padding-inline:10px}
+  .vista,.topbar{padding-inline:20px}
+  .encabezado,.panel-cabeza{flex-wrap:wrap}
+}
+
+@media screen and (max-width:700px){
+  .app{display:block}
+  .sidebar{width:auto;height:auto;position:static;padding:10px 16px;overflow:visible}
+  .sidebar-cabecera{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{padding:0}
+  .boton-menu{display:block;color:#fff;border:1px solid #8898b9;border-radius:8px;padding:8px 12px}
+  .sidebar-menu{display:none;margin-top:12px}
+  .menu-abierto .sidebar-menu{display:flex}
+  .topbar{position:static;height:auto;min-height:0;padding-block:10px;gap:8px 12px;flex-wrap:wrap}
+  .topbar-acciones,.miga,.pestanas,.leyenda,.segmento,.riesgo-top{flex-wrap:wrap}
+  .vista{padding:20px 16px 32px}
+  .panel,.detalle-cabeza{padding:16px}
+  .detalle-top{flex-wrap:wrap;gap:10px}
+  .detalle-top h1{font-size:22px}
+  .kpis,.medidas{gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi{padding:12px}
+  .kpi strong,.medida .m-valor{overflow-wrap:anywhere}
+  .kpi strong{font-size:22px}
+  .kpi .marca{flex-shrink:0}
+  .pestana{padding:9px 10px}
+  .alerta{flex-wrap:wrap}
+  .alerta .txt{min-width:min(100%, 150px)}
+  .alerta .boton{margin-left:45px}
+  .toast{width:max-content;max-width:calc(100% - 24px)}
+}
+
+@media screen and (max-width:400px){
+  .filtros > *,.encabezado-acciones > *{width:100%;min-width:0}
+  .modal{padding:16px}
+  .modal-acciones{flex-wrap:wrap}
+  .campos-fila,.opciones{grid-template-columns:minmax(0,1fr)}
+}

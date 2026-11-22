@@ -31,13 +31,16 @@ const App = (function () {
     document.querySelector('#miga').innerHTML = vista.miga(actual.params);
     if (vista.montar) vista.montar();
     pintarNav();
-    window.scrollTo(0, 0);
   }
 
   function pintarNav () {
     const rutaNav = actual.nombre === 'proyecto' ? 'proyectos' : actual.nombre;
-    document.querySelectorAll('#nav .nav-item').forEach(a =>
-      a.classList.toggle('activo', a.dataset.ruta === rutaNav));
+    document.querySelectorAll('#nav .nav-item').forEach(a => {
+      const activo = a.dataset.ruta === rutaNav;
+      a.classList.toggle('activo', activo);
+      if (activo) a.setAttribute('aria-current', actual.nombre === 'proyecto' ? 'location' : 'page');
+      else a.removeAttribute('aria-current');
+    });
     document.querySelector('#navProyectos').textContent = Estado.proyectos().length;
     const abiertas = Estado.alertasAbiertas().length;
     const badge = document.querySelector('#navAlertas');
@@ -49,7 +52,11 @@ const App = (function () {
     badgeCal.style.display = incAbiertas ? '' : 'none';
   }
 
-  function navegar () { actual = leerHash(); render(); }
+  function navegar () {
+    actual = leerHash();
+    render();
+    window.scrollTo(0, 0);
+  }
 
   /* --- acciones globales de la barra superior -------------- */
   /* El reporte (PDF o CSV) vive en reporte.js. Si estás en el
@@ -127,6 +134,25 @@ const App = (function () {
 
   /* --- arranque -------------------------------------------- */
   function iniciar () {
+    const botonMenu = document.querySelector('#btnMenu');
+    const lateral = document.querySelector('.sidebar');
+    const mostrarMenu = abierto => {
+      botonMenu.setAttribute('aria-expanded', String(abierto));
+      lateral.classList.toggle('menu-abierto', abierto);
+    };
+    botonMenu.addEventListener('click', () => mostrarMenu(botonMenu.getAttribute('aria-expanded') === 'false'));
+    lateral.addEventListener('click', e => {
+      if (e.target.closest('a') && botonMenu.getAttribute('aria-expanded') === 'true') {
+        mostrarMenu(false);
+        botonMenu.focus();
+      }
+    });
+    lateral.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && botonMenu.getAttribute('aria-expanded') === 'true') {
+        mostrarMenu(false);
+        botonMenu.focus();
+      }
+    });
     window.addEventListener('hashchange', navegar);
     Estado.alCambiar(render);                 // cualquier cambio de datos repinta
     document.querySelector('#btnExportar').addEventListener('click', exportarReporte);

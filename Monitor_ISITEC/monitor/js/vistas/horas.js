@@ -68,7 +68,7 @@ const VistaHoras = {
         <div class="panel-cabeza">
           <div><h2>Ocupación del equipo</h2><p>Horas del mes en curso contra la capacidad de cada persona</p></div>
         </div>
-        <div style="overflow-x:auto">
+        <div class="tabla-desplazable" tabindex="0">
           <table class="tabla">
             <thead><tr>
               <th>Persona</th><th>Disponibles</th><th>Invertidas</th><th>Facturables</th>
@@ -112,7 +112,7 @@ const VistaHoras = {
           </div>
           <span class="chip rojo">Rojo: consumo &gt; avance + ${u} pts</span>
         </div>
-        <div style="overflow-x:auto">
+        <div class="tabla-desplazable" tabindex="0">
           <table class="tabla">
             <thead><tr>
               <th>Proyecto</th><th>Presupuestadas</th><th>Consumidas</th>
@@ -166,7 +166,7 @@ const VistaHoras = {
           </div>
           <span class="chip ambar">Valor hora por validar con ISITEC</span>
         </div>
-        <div style="overflow-x:auto">
+        <div class="tabla-desplazable" tabindex="0">
           <table class="tabla">
             <thead><tr>
               <th>Proyecto</th><th>Facturables</th><th>No facturables</th><th>Valor hora</th>

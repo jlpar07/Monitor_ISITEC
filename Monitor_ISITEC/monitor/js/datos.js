@@ -20,11 +20,11 @@ const DATOS_SEMILLA = {
   version: 3,
 
   personas: [
-    { id:'ap', nombre:'Angie Polanía',  iniciales:'AP', color:'c-coral',   rol:'Consultora senior',  horasDisponibles:160 },
+    { id:'ap', nombre:'Angie Polanía',  iniciales:'AP', color:'c-coral',   rol:'Consultora sénior',  horasDisponibles:160 },
     { id:'jr', nombre:'Julián Ramos',   iniciales:'JR', color:'c-morado',  rol:'Consultor SAP',      horasDisponibles:160 },
     { id:'js', nombre:'José Parra',     iniciales:'JP', color:'c-azul',    rol:'Analista de datos',  horasDisponibles:120 },
     { id:'cp', nombre:'Camilo Panadero',iniciales:'CP', color:'c-verde',   rol:'Gerente de proyecto',horasDisponibles:160 },
-    { id:'ss', nombre:'Sergio Soler',   iniciales:'SS', color:'c-naranja', rol:'Consultor junior',   horasDisponibles:160 }
+    { id:'ss', nombre:'Sergio Soler',   iniciales:'SS', color:'c-naranja', rol:'Consultor júnior',   horasDisponibles:160 }
   ],
 
   clientes: [
@@ -47,7 +47,7 @@ const DATOS_SEMILLA = {
       costoPlaneado:126000000, costoReal:92000000 },
 
     { id:'erp', nombre:'Implementación ERP', clienteId:'cafam', liderId:'jr',
-      inicio:enDias(-130), finPlan:enDias(25), avanceReal:52,
+      inicio:enDias(-130), finPlan:enDias(25), avanceReal:72,
       horasPresupuesto:2400, valorContrato:420000000,
       costoPlaneado:300000000, costoReal:205000000 },
 
@@ -68,11 +68,11 @@ const DATOS_SEMILLA = {
   tareas: [
     { id:'t1', proyectoId:'erp', nombre:'Validar catálogo de productos', responsableId:'jr',
       fechaLimite:enDias(-3), prioridad:'alta', estado:'pendiente',
-      riesgo:{ causa:'sin_avance', mitigacion:'' }, esIncidencia:false },
+      riesgo:{ causa:'sin_avance', mitigacion:'Revisar el catálogo con el líder del proyecto y acordar una nueva fecha de validación.' }, esIncidencia:false },
 
     { id:'t2', proyectoId:'datos', nombre:'Confirmar fuentes de migración', responsableId:'js',
       fechaLimite:enDias(0), prioridad:'alta', estado:'pendiente',
-      riesgo:{ causa:'espera_cliente', mitigacion:'Se escaló al patrocinador de Andes el lunes.' },
+      riesgo:{ causa:'espera_cliente', mitigacion:'Escalar al patrocinador del cliente y confirmar las fuentes antes de la próxima carga.' },
       esIncidencia:false },
 
     { id:'t3', proyectoId:'portal', nombre:'Enviar acta de comité', responsableId:'ap',
@@ -80,7 +80,7 @@ const DATOS_SEMILLA = {
 
     { id:'t4', proyectoId:'erp', nombre:'Pruebas de integración con nómina', responsableId:'ss',
       fechaLimite:enDias(-1), prioridad:'alta', estado:'pendiente',
-      riesgo:{ causa:'espera_proveedor', mitigacion:'' }, esIncidencia:false },
+      riesgo:{ causa:'espera_proveedor', mitigacion:'Confirmar la entrega del archivo del proveedor y reservar una sesión de pruebas.' }, esIncidencia:false },
 
     { id:'t5', proyectoId:'erp', nombre:'Corregir error en carga de terceros', responsableId:'jr',
       fechaLimite:enDias(-2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true,
@@ -98,7 +98,7 @@ const DATOS_SEMILLA = {
     { id:'t9', proyectoId:'planeacion', nombre:'Definir jerarquía de centros de costo', responsableId:'ss',
       fechaLimite:enDias(14), prioridad:'baja', estado:'pendiente', riesgo:null, esIncidencia:false },
 
-    { id:'t10', proyectoId:'portal', nombre:'Timeout al generar reportes', responsableId:'ap',
+    { id:'t10', proyectoId:'portal', nombre:'Se agotó el tiempo de espera al generar reportes', responsableId:'ap',
       fechaLimite:enDias(2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true,
       fechaReporte:enDias(-4), fechaCierre:null, horas:3 },
 

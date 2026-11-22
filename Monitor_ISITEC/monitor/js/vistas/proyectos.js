@@ -19,38 +19,38 @@ const VistaProyectos = {
       </section>
 
       <div class="filtros">
-        <select id="fCliente">
+        <select id="fCliente" aria-label="Filtrar por cliente">
           <option value="all">Todos los clientes</option>
           ${Estado.clientes().map(c => `<option value="${c.id}">${UI.escapar(c.nombre)}</option>`).join('')}
         </select>
-        <select id="fEstado">
+        <select id="fEstado" aria-label="Filtrar por estado">
           <option value="all">Todos los estados</option>
           <option value="verde">En tiempo</option>
           <option value="ambar">En riesgo</option>
           <option value="rojo">Crítico</option>
         </select>
-        <input type="search" id="fTexto" placeholder="Buscar proyecto, cliente o líder...">
+        <input type="search" id="fTexto" aria-label="Buscar proyectos" placeholder="Buscar proyecto, cliente o líder...">
       </div>
 
-      <section class="panel" style="padding:18px 20px">
-        <table class="tabla">
+      <section class="panel">
+        <div class="tabla-desplazable" tabindex="0"><table class="tabla">
           <thead><tr>
             <th>Proyecto</th><th>Líder</th><th style="width:190px">Avance real vs. esperado</th>
             <th>Estado</th><th>Cierre proyectado</th>
           </tr></thead>
           <tbody id="tbodyProyectos"></tbody>
-        </table>
+        </table></div>
       </section>
     `;
   },
 
   montar () {
-    ['fCliente','fEstado','fTexto'].forEach(id => {
+    const campos = { fCliente: 'cliente', fEstado: 'estado', fTexto: 'texto' };
+    Object.entries(campos).forEach(([id, filtro]) => {
       const el = document.getElementById(id);
+      el.value = this.filtros[filtro];
       el.addEventListener('input', () => {
-        this.filtros.cliente = document.getElementById('fCliente').value;
-        this.filtros.estado  = document.getElementById('fEstado').value;
-        this.filtros.texto   = document.getElementById('fTexto').value.toLowerCase().trim();
+        this.filtros[filtro] = el.value;
         this.pintarFilas();
       });
     });
@@ -67,7 +67,7 @@ const VistaProyectos = {
       if (estado !== 'all' && sem.clave !== estado) return false;
       if (texto) {
         const blob = (p.nombre + ' ' + c.nombre + ' ' + lider.nombre).toLowerCase();
-        if (!blob.includes(texto)) return false;
+        if (!blob.includes(texto.toLowerCase().trim())) return false;
       }
       return true;
     });
@@ -101,7 +101,7 @@ const VistaProyectos = {
           <td>
             <div class="proyecto-nombre">
               <i class="punto ${sem.clave}"></i>
-              <div><strong>${UI.escapar(p.nombre)}</strong><small>${UI.escapar(c.nombre)}</small></div>
+              <div><strong><a href="#/proyecto/${p.id}">${UI.escapar(p.nombre)}</a></strong><small>${UI.escapar(c.nombre)}</small></div>
             </div>
           </td>
           <td>${UI.personaLinea(p.liderId)}</td>
@@ -119,6 +119,8 @@ const VistaProyectos = {
     }).join('');
 
     tbody.querySelectorAll('tr.clic').forEach(tr =>
-      tr.addEventListener('click', () => { location.hash = '#/proyecto/' + tr.dataset.id; }));
+      tr.addEventListener('click', e => {
+        if (!e.target.closest('a')) location.hash = '#/proyecto/' + tr.dataset.id;
+      }));
   }
 };

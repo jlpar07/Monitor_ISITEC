@@ -115,11 +115,19 @@ funciona sin internet y el reporte usa los mismos estilos de la app.
 ---
 
 ## Tarea 6 · Pulido final para la sustentación
-Repartir entre todos la semana del 17 de noviembre.
 
-- [ ] Revisar que todo se vea bien en la pantalla con la que se va a proyectar
-- [ ] Ajustar el menú lateral para pantallas pequeñas (hoy es fijo de 236 px)
-- [ ] Revisar textos: que no quede nada en inglés ni ningún "lorem ipsum"
-- [ ] Probar el recorrido completo de la demo tres veces seguidas sin errores
-- [ ] Dejar los datos de ejemplo en un estado bonito antes de presentar
-      (el botón "Reiniciar datos" del menú lateral los restaura)
+- [x] Revisar la vista en Chrome a 1366 × 768 y 1920 × 1080.
+- [ ] Revisar la visibilidad en el equipo y proyector de la sustentación.
+- [x] Ajustar el menú lateral para pantallas pequeñas. Se abre con **Menú** y se
+      cierra al navegar o pulsar Escape. Las tablas anchas se desplazan dentro de su panel.
+- [x] Revisar los textos de la aplicación y los reportes. Se corrigieron los rótulos
+      y se conservó «AI POWERED» como parte del encabezado original del PDF.
+- [x] Probar tres recorridos completos seguidos en Chrome sin errores, a 1366 × 768,
+      1920 × 1080 y 390 × 844.
+- [x] Preparar los datos de ejemplo con proyectos en tiempo, en riesgo y críticos, y
+      planes de mitigación listos para mostrar. **Reiniciar datos** restaura esta escena.
+
+El recorrido probado cubrió Resumen, filtros de Proyectos, detalle y fórmulas financieras,
+creación, reasignación y cierre de una tarea, edición de una mitigación, gestión de alertas,
+facturación, horas, incidencias, exportación a CSV y PDF, persistencia al recargar y reinicio
+de los datos.
