@@ -117,7 +117,7 @@ funciona sin internet y el reporte usa los mismos estilos de la app.
 ## Tarea 6 · Pulido final para la sustentación
 
 - [x] Revisar la vista en Chrome a 1366 × 768 y 1920 × 1080.
-- [ ] Revisar la visibilidad en el equipo y proyector de la sustentación.
+- [x] Revisar la visibilidad en el equipo y proyector de la sustentación.
 - [x] Ajustar el menú lateral para pantallas pequeñas. Se abre con **Menú** y se
       cierra al navegar o pulsar Escape. Las tablas anchas se desplazan dentro de su panel.
 - [x] Revisar los textos de la aplicación y los reportes. Se corrigieron los rótulos
