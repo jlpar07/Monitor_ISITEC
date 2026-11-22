@@ -1,7 +1,7 @@
 /* ===========================================================
    app.js · Router y arranque
    Enrutamiento por hash: #/resumen, #/proyectos,
-   #/proyecto/:id, #/alertas, #/facturacion, #/horas
+   #/proyecto/:id, #/alertas, #/facturacion, #/horas, #/calidad
    =========================================================== */
 
 const App = (function () {
@@ -12,7 +12,8 @@ const App = (function () {
     proyecto:    VistaProyecto,
     alertas:     VistaAlertas,
     facturacion: VistaFacturacion,
-    horas:       VistaHoras
+    horas:       VistaHoras,
+    calidad:     VistaCalidad
   };
 
   let actual = { nombre: 'resumen', params: {} };
@@ -42,30 +43,19 @@ const App = (function () {
     const badge = document.querySelector('#navAlertas');
     badge.textContent = abiertas;
     badge.style.display = abiertas ? '' : 'none';
+    const incAbiertas = Estado.calidadGlobal().abiertas;
+    const badgeCal = document.querySelector('#navCalidad');
+    badgeCal.textContent = incAbiertas;
+    badgeCal.style.display = incAbiertas ? '' : 'none';
   }
 
   function navegar () { actual = leerHash(); render(); }
 
   /* --- acciones globales de la barra superior -------------- */
+  /* El reporte (PDF o CSV) vive en reporte.js. Si estás en el
+     detalle de un proyecto, el modal lo sugiere por defecto. */
   function exportarReporte () {
-    const filas = [['Proyecto','Cliente','Lider','Avance real','Avance esperado','Desviacion','Estado','Cierre proyectado','Tareas vencidas']];
-    Estado.proyectos().forEach(p => {
-      const proy = Estado.proyeccionCierre(p);
-      filas.push([
-        p.nombre,
-        Estado.cliente(p.clienteId).nombre,
-        Estado.persona(p.liderId).nombre,
-        p.avanceReal + '%',
-        Estado.avanceEsperado(p) + '%',
-        Estado.desviacion(p) + ' pts',
-        Estado.semaforo(p).texto,
-        proy ? proy.fecha : 'sin dato',
-        Estado.tareasDe(p.id).filter(Estado.estaVencida).length
-      ]);
-    });
-    const csv = filas.map(f => f.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
-    UI.descargar(`seguimiento-isitec-${Estado.hoyISO()}.csv`, csv);
-    UI.toast('Reporte descargado.');
+    Reporte.abrir(actual.nombre === 'proyecto' ? actual.params.id : null);
   }
 
   function abrirNuevaTarea () {
@@ -102,12 +92,21 @@ const App = (function () {
           <option value="baja">Baja</option>
         </select>
       </label>
+      <label class="casilla-campo">
+        <input type="checkbox" id="nt_incidencia"> Es una incidencia
+        <small>Cuenta en el indicador de calidad y registra las horas para atenderla</small>
+      </label>
+      <label class="campo" id="nt_horas_campo" hidden>Horas ya invertidas
+        <input type="number" id="nt_horas" min="0" step="0.5" value="0">
+      </label>
       <div class="modal-acciones">
         <button class="boton secundario" data-cerrar>Cancelar</button>
         <button class="boton primario" id="nt_guardar">Crear tarea</button>
       </div>`,
       dlg => {
         dlg.querySelector('#nt_nombre').focus();
+        const casilla = dlg.querySelector('#nt_incidencia');
+        casilla.addEventListener('change', () => { dlg.querySelector('#nt_horas_campo').hidden = !casilla.checked; });
         dlg.querySelector('#nt_guardar').addEventListener('click', () => {
           const nombre = dlg.querySelector('#nt_nombre').value.trim();
           if (!nombre) { dlg.querySelector('#nt_nombre').focus(); return; }
@@ -116,10 +115,12 @@ const App = (function () {
             proyectoId:    dlg.querySelector('#nt_proyecto').value,
             responsableId: dlg.querySelector('#nt_responsable').value,
             fechaLimite:   dlg.querySelector('#nt_fecha').value,
-            prioridad:     dlg.querySelector('#nt_prioridad').value
+            prioridad:     dlg.querySelector('#nt_prioridad').value,
+            esIncidencia:  casilla.checked,
+            horas:         Math.max(0, parseFloat(dlg.querySelector('#nt_horas').value) || 0)
           });
           UI.cerrarModal();
-          UI.toast('Tarea creada.');
+          UI.toast(casilla.checked ? 'Incidencia reportada.' : 'Tarea creada.');
         });
       });
   }

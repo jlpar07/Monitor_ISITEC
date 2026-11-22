@@ -106,15 +106,9 @@ const VistaResumen = {
     const abiertas = Estado.alertasAbiertas().slice(0, 4);
     if (!abiertas.length) return UI.vacio('Sin alertas', 'El monitoreo automático no encontró nada.');
 
-    const estilo = {
-      vencida: ['var(--rojo-claro)', 'var(--rojo)', '!'],
-      bloqueo: ['var(--ambar-claro)', 'var(--ambar)', '△'],
-      factura: ['#efebfb', 'var(--violeta)', '$']
-    };
-
     return '<div class="atencion">' + abiertas.map(a => {
-      const [fondo, tinta, icono] = estilo[a.tipo];
-      const destino = a.proyectoId ? `#/proyecto/${a.proyectoId}` : '#/facturacion';
+      const [fondo, tinta, icono] = UI.estiloAlerta(a.tipo);
+      const destino = a.destino;
       return `
         <a class="atencion-item" href="${destino}">
           <span class="icono" style="background:${fondo};color:${tinta}">${icono}</span>

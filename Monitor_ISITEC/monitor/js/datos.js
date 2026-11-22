@@ -17,7 +17,7 @@ function enDias(n){
 }
 
 const DATOS_SEMILLA = {
-  version: 2,
+  version: 3,
 
   personas: [
     { id:'ap', nombre:'Angie Polanía',  iniciales:'AP', color:'c-coral',   rol:'Consultora senior',  horasDisponibles:160 },
@@ -36,23 +36,30 @@ const DATOS_SEMILLA = {
 
   /* avanceReal lo reporta el líder del proyecto.
      El avance esperado y la proyección de cierre los calcula
-     estado.js a partir de las fechas. */
+     estado.js a partir de las fechas.
+     costoPlaneado (presupuesto de costo total) y costoReal (costo
+     ejecutado a la fecha) vendrán del sistema contable; por ahora
+     son datos de ejemplo, "Por validar" con ISITEC. */
   proyectos: [
     { id:'portal', nombre:'Portal de autogestión', clienteId:'natura', liderId:'ap',
       inicio:enDias(-95), finPlan:enDias(35), avanceReal:78,
-      horasPresupuesto:1200, valorContrato:180000000 },
+      horasPresupuesto:1200, valorContrato:180000000,
+      costoPlaneado:126000000, costoReal:92000000 },
 
     { id:'erp', nombre:'Implementación ERP', clienteId:'cafam', liderId:'jr',
       inicio:enDias(-130), finPlan:enDias(25), avanceReal:52,
-      horasPresupuesto:2400, valorContrato:420000000 },
+      horasPresupuesto:2400, valorContrato:420000000,
+      costoPlaneado:300000000, costoReal:205000000 },
 
     { id:'datos', nombre:'Migración de datos', clienteId:'andes', liderId:'js',
       inicio:enDias(-70), finPlan:enDias(10), avanceReal:34,
-      horasPresupuesto:800, valorContrato:95000000 },
+      horasPresupuesto:800, valorContrato:95000000,
+      costoPlaneado:68000000, costoReal:36000000 },
 
     { id:'planeacion', nombre:'Planeación financiera Prophix', clienteId:'monge', liderId:'cp',
       inicio:enDias(-40), finPlan:enDias(80), avanceReal:31,
-      horasPresupuesto:1500, valorContrato:260000000 }
+      horasPresupuesto:1500, valorContrato:260000000,
+      costoPlaneado:182000000, costoReal:50000000 }
   ],
 
   /* Una tarea en riesgo guarda SIEMPRE su causa. Son las tres
@@ -76,7 +83,8 @@ const DATOS_SEMILLA = {
       riesgo:{ causa:'espera_proveedor', mitigacion:'' }, esIncidencia:false },
 
     { id:'t5', proyectoId:'erp', nombre:'Corregir error en carga de terceros', responsableId:'jr',
-      fechaLimite:enDias(-2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true },
+      fechaLimite:enDias(-2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-9), fechaCierre:null, horas:6 },
 
     { id:'t6', proyectoId:'portal', nombre:'Capacitar usuarios clave', responsableId:'ap',
       fechaLimite:enDias(6), prioridad:'media', estado:'pendiente', riesgo:null, esIncidencia:false },
@@ -90,14 +98,66 @@ const DATOS_SEMILLA = {
     { id:'t9', proyectoId:'planeacion', nombre:'Definir jerarquía de centros de costo', responsableId:'ss',
       fechaLimite:enDias(14), prioridad:'baja', estado:'pendiente', riesgo:null, esIncidencia:false },
 
-    { id:'t10', proyectoId:'portal', nombre:'Incidencia: timeout al generar reportes', responsableId:'ap',
-      fechaLimite:enDias(2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true },
+    { id:'t10', proyectoId:'portal', nombre:'Timeout al generar reportes', responsableId:'ap',
+      fechaLimite:enDias(2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-4), fechaCierre:null, horas:3 },
 
     { id:'t11', proyectoId:'datos', nombre:'Validar integridad de datos migrados', responsableId:'js',
       fechaLimite:enDias(4), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:false },
 
     { id:'t12', proyectoId:'erp', nombre:'Documentar parametrización final', responsableId:'ss',
-      fechaLimite:enDias(12), prioridad:'baja', estado:'pendiente', riesgo:null, esIncidencia:false }
+      fechaLimite:enDias(12), prioridad:'baja', estado:'pendiente', riesgo:null, esIncidencia:false },
+
+    /* Incidencias: tareas con esIncidencia. Guardan cuándo se
+       reportaron, cuándo se cerraron y cuántas horas tomó
+       atenderlas (indicador de calidad que pidió Oscar). */
+    { id:'i1', proyectoId:'portal', nombre:'Error de permisos en perfil aprobador', responsableId:'ap',
+      fechaLimite:enDias(-47), prioridad:'media', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-52), fechaCierre:enDias(-47), horas:8 },
+
+    { id:'i2', proyectoId:'erp', nombre:'Descuadre en asiento contable de nómina', responsableId:'jr',
+      fechaLimite:enDias(-38), prioridad:'alta', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-45), fechaCierre:enDias(-38), horas:14 },
+
+    { id:'i3', proyectoId:'erp', nombre:'Campo NIT no acepta dígito de verificación', responsableId:'ss',
+      fechaLimite:enDias(-39), prioridad:'baja', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-40), fechaCierre:enDias(-39), horas:3 },
+
+    { id:'i4', proyectoId:'datos', nombre:'Duplicados en maestro de clientes', responsableId:'js',
+      fechaLimite:enDias(-26), prioridad:'alta', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-33), fechaCierre:enDias(-26), horas:12 },
+
+    { id:'i5', proyectoId:'portal', nombre:'Correo de notificación sin plantilla', responsableId:'ap',
+      fechaLimite:enDias(-29), prioridad:'baja', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-30), fechaCierre:enDias(-29), horas:2 },
+
+    { id:'i6', proyectoId:'erp', nombre:'Interfaz bancaria rechaza archivo plano', responsableId:'jr',
+      fechaLimite:enDias(-17), prioridad:'alta', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-26), fechaCierre:enDias(-17), horas:18 },
+
+    { id:'i7', proyectoId:'datos', nombre:'Fechas migradas con formato incorrecto', responsableId:'js',
+      fechaLimite:enDias(-16), prioridad:'media', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-20), fechaCierre:enDias(-16), horas:9 },
+
+    { id:'i8', proyectoId:'portal', nombre:'Lentitud en consulta de pedidos', responsableId:'cp',
+      fechaLimite:enDias(-10), prioridad:'media', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-17), fechaCierre:enDias(-10), horas:7 },
+
+    { id:'i9', proyectoId:'datos', nombre:'Registros huérfanos tras la carga', responsableId:'js',
+      fechaLimite:enDias(-1), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-12), fechaCierre:null, horas:10 },
+
+    { id:'i10', proyectoId:'erp', nombre:'Reporte de cartera con totales errados', responsableId:'ss',
+      fechaLimite:enDias(-3), prioridad:'media', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-8), fechaCierre:enDias(-3), horas:5 },
+
+    { id:'i11', proyectoId:'planeacion', nombre:'Error en fórmula de distribución de gastos', responsableId:'cp',
+      fechaLimite:enDias(-4), prioridad:'media', estado:'completada', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-6), fechaCierre:enDias(-4), horas:4 },
+
+    { id:'i12', proyectoId:'datos', nombre:'Pérdida de decimales en saldos migrados', responsableId:'ss',
+      fechaLimite:enDias(2), prioridad:'alta', estado:'pendiente', riesgo:null, esIncidencia:true,
+      fechaReporte:enDias(-3), fechaCierre:null, horas:2 }
   ],
 
   /* Insumo del módulo de facturación (pendiente: ver TODO.md) */
@@ -163,6 +223,12 @@ const DATOS_SEMILLA = {
     { id:'h36', mes:-4, personaId:'ss', proyectoId:'erp',        horas:120, facturable:true  },
     { id:'h37', mes:-4, personaId:'ap', proyectoId:'erp',        horas:140, facturable:true  },
     { id:'h38', mes:-4, personaId:'js', proyectoId:'erp',        horas:100, facturable:true  }
+  ],
+
+  /* Registro de los reportes exportados ("queda registro de la acción",
+     journey futuro, actividad 6) */
+  reportes: [
+    { id:'r1', fecha:enDias(-7), alcance:'todos', formato:'pdf', interno:true }
   ],
 
   /* ids de alertas que el usuario ya marcó como atendidas */

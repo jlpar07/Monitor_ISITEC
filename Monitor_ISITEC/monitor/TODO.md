@@ -14,7 +14,7 @@ Cada tarea dice qué archivo tocar y qué datos ya existen.
 - Pestaña **Tareas**: completar, reasignar y crear tareas (se guardan de verdad)
 - Pestaña **Riesgos**: causa del riesgo y plan de mitigación editable
 - Pantalla **Alertas**, generadas automáticamente de los datos, con "marcar como atendida"
-- **Exportar reporte** a CSV con los datos reales de la pantalla
+- **Exportar reporte** en PDF (cliente o interno) y CSV, con historial
 
 ---
 
@@ -62,41 +62,55 @@ Notas de implementación:
 
 ---
 
-## Tarea 3 · Indicadores de calidad y pruebas
-**Archivo:** nuevo, `js/vistas/calidad.js` + enlace en el menú de `index.html`
-**Datos listos:** las tareas tienen la bandera `esIncidencia`; usa `Estado.incidencias()`
+## Tarea 3 · Indicadores de calidad y pruebas (Ya lista)
+**Archivo:** `js/vistas/calidad.js` + enlace "Calidad y pruebas" en el menú de `index.html`
+**Datos:** las incidencias son tareas con `esIncidencia`; usa `Estado.incidencias()`
 
-- [ ] Cantidad de incidencias por proyecto y en total
-- [ ] Tiempo invertido en atender incidencias (hay que agregar un campo `horas` a la tarea
-      en `datos.js` y pedirlo al crear o cerrar una incidencia)
-- [ ] Evolución: incidencias abiertas contra cerradas
-- [ ] Mostrar el indicador en el detalle de cada proyecto
+- [x] Cantidad de incidencias por proyecto y en total
+- [x] Tiempo invertido en atender incidencias: cada incidencia tiene `horas`, `fechaReporte`
+      y `fechaCierre`. Las horas se piden al reportarla, con "+ Horas" y al cerrarla
+      (también al marcarla como completada desde la pestaña Tareas)
+- [x] Evolución semanal: gráfica de reportadas contra cerradas (8 semanas), con tooltip,
+      lectura de la tendencia y vista como tabla
+- [x] Indicador en el detalle de cada proyecto: pestaña **Calidad**
+- [x] "Nueva tarea" tiene la casilla "Es una incidencia"
+- [x] Alerta automática cuando hay incidencias críticas (severidad alta) abiertas
 
----
-
-## Tarea 4 · SPI y rentabilidad
-**Archivo:** `js/estado.js` (los cálculos) y el detalle de proyecto
-
-Es lo más difícil porque necesita datos que todavía no tenemos.
-Primero hay que confirmar con ISITEC a qué información del sistema contable podemos llegar.
-
-- [ ] Agregar a `datos.js` los campos de costo: `costoPlaneado` y `costoReal` por proyecto
-- [ ] **SPI** = valor ganado / valor planeado. Con lo que ya hay se puede aproximar como
-      `avanceReal / avanceEsperado`
-- [ ] **CPI** y rentabilidad = (valorContrato − costoReal) / valorContrato
-- [ ] Proyección de cierre en costo, no solo en tiempo
-- [ ] Mostrarlos como una cuarta fila de indicadores en el detalle del proyecto
+Cálculos en `js/estado.js`: `calidadProyecto()`, `calidadGlobal()`, `evolucionIncidencias()`,
+`cerrarIncidencia()`, `registrarHorasIncidencia()`.
 
 ---
 
-## Tarea 5 · Exportar el reporte en PDF
-**Archivo:** `js/app.js` → función `exportarReporte()`
+## Tarea 4 · SPI y rentabilidad (Ya lista, con datos de ejemplo)
+**Archivo:** `js/estado.js` → `desempeno(p)` y la cabecera del detalle de proyecto
 
-Hoy exporta CSV, que ya sirve. Para la entrega final sería mejor un PDF presentable.
+- [x] Campos de costo en `datos.js`: `costoPlaneado` y `costoReal` por proyecto
+      (datos de ejemplo: **falta confirmar con ISITEC** qué saca el sistema contable)
+- [x] **SPI** = valor ganado / valor planeado (equivale a `avanceReal / avanceEsperado`)
+- [x] **CPI** = valor ganado / costo real
+- [x] Proyección de cierre en costo: EAC = costoPlaneado / CPI
+- [x] Rentabilidad: margen planeado y margen proyectado = (valorContrato − EAC) / valorContrato
+- [x] Cuarta fila de indicadores en el detalle del proyecto, con el botón "¿Cómo se calcula?"
+      que muestra la fórmula con los números del proyecto
+- [x] Alerta automática cuando un proyecto se proyecta a pérdida (margen negativo)
 
-- [ ] Generar un PDF con el logo de ISITEC, la fecha y la tabla de proyectos
-- [ ] Incluir las alertas abiertas y los riesgos con su mitigación
-- [ ] Sugerencia: `jsPDF` desde CDN, o abrir una ventana con estilos de impresión
+Semáforo: índices verde ≥ 0,95 · ámbar ≥ 0,85 · rojo por debajo. Margen rojo < 0 %, ámbar < 15 %.
+
+---
+
+## Tarea 5 · Exportar el reporte en PDF (Ya lista)
+**Archivo:** `js/reporte.js` (el botón "Exportar reporte" de la barra superior lo abre)
+
+- [x] PDF con el logo de ISITEC, la fecha y la tabla de proyectos
+- [x] Incluye las alertas abiertas y los riesgos con su mitigación, más las incidencias abiertas
+- [x] Dos versiones: **para el cliente** (sin costos ni márgenes, con próximas entregas y
+      facturas pendientes) y **uso interno** (con SPI, CPI, márgenes, horas y alertas)
+- [x] Todos los proyectos o uno solo; desde el detalle de un proyecto lo sugiere por defecto
+- [x] Cada exportación queda registrada y se ve en "Últimos reportes" (journey, actividad 6)
+- [x] Sigue existiendo la exportación a CSV, ahora con los indicadores nuevos
+
+Se usó la ventana de impresión del navegador ("Guardar como PDF") en lugar de jsPDF:
+funciona sin internet y el reporte usa los mismos estilos de la app.
 
 ---
 

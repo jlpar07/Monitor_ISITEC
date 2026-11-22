@@ -16,7 +16,7 @@ const VistaAlertas = {
       <section class="encabezado">
         <div>
           <h1>Alertas</h1>
-          <p class="sub">${abiertas.length} sin atender. Se recalculan solas a partir de las tareas y las facturas.</p>
+          <p class="sub">${abiertas.length} sin atender. Se recalculan solas a partir de las tareas, las horas, los costos y las facturas.</p>
         </div>
       </section>
 
@@ -35,11 +35,7 @@ const VistaAlertas = {
   },
 
   fila (a) {
-    const estilo = {
-      vencida: ['var(--rojo-claro)', 'var(--rojo)', '!'],
-      bloqueo: ['var(--ambar-claro)', 'var(--ambar)', '△'],
-      factura: ['#efebfb', 'var(--violeta)', '$']
-    }[a.tipo];
+    const estilo = UI.estiloAlerta(a.tipo);
 
     return `
       <div class="alerta ${a.atendida ? 'atendida' : ''}">
@@ -48,7 +44,7 @@ const VistaAlertas = {
           <strong>${UI.escapar(a.titulo)}</strong>
           <small>${UI.escapar(a.detalle)}</small>
         </span>
-        ${a.proyectoId ? `<a class="boton secundario" href="#/proyecto/${a.proyectoId}">Ver proyecto</a>` : ''}
+        <a class="boton secundario" href="${a.destino}">${a.proyectoId ? 'Ver proyecto' : 'Ver detalle'}</a>
         ${a.atendida ? '<span class="chip verde">Atendida</span>'
                      : `<button class="boton sutil" data-atender="${a.id}">Marcar atendida</button>`}
       </div>`;

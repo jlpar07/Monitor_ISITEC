@@ -17,10 +17,12 @@ Esta versión parte la aplicación en cinco pantallas y deja el resumen con lo m
 |---|---|
 | Resumen | Responde una sola pregunta: ¿qué necesita mi atención hoy? |
 | Proyectos | Listado con avance real contra esperado y cierre proyectado |
-| Detalle de proyecto | Tareas, riesgos, horas y facturación de un proyecto |
+| Detalle de proyecto | Avance, SPI, CPI y margen proyectado; pestañas de tareas, riesgos, horas, calidad y facturación |
 | Alertas | Lo que el sistema detectó solo, con opción de marcar como atendida |
 | Facturación | Facturas por cobrar, vencidas y facturado contra avance |
 | Horas y equipo | Ocupación por persona, productividad (horas vs avance) e ingreso por horas facturables |
+| Calidad y pruebas | Incidencias por proyecto, horas para atenderlas y evolución semanal |
+| Exportar reporte | PDF para el cliente o de uso interno, y CSV; cada exportación queda registrada |
 
 Además, ahora la aplicación **funciona de verdad**: las acciones cambian los datos
 y quedan guardadas en el navegador, no son solo mensajes en pantalla.
@@ -33,6 +35,7 @@ css/styles.css          Toda la hoja de estilos, dividida en secciones
 js/datos.js             Datos de ejemplo. Aquí se conectarán las fuentes reales
 js/estado.js            Estado, persistencia y cálculos (avance, desviación, alertas)
 js/ui.js                Utilidades: formato, toast, modal, descarga de archivos
+js/reporte.js           Reporte PDF (cliente / interno) y CSV
 js/vistas/*.js          Una vista por pantalla
 js/app.js               Enrutador y acciones de la barra superior
 ```

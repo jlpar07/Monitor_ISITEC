@@ -152,6 +152,85 @@ const Estado = (function () {
     return { clave:'verde', texto:'Productivo' };
   }
 
+  /* --- calidad e incidencias ------------------------------- */
+  /* Feedback de Oscar: cantidad de incidencias y tiempo invertido
+     en atenderlas. Una incidencia es una tarea con esIncidencia. */
+
+  const incidenciaAbierta = t => t.estado !== 'completada';
+
+  function resumenIncidencias (lista) {
+    const cerradas = lista.filter(t => !incidenciaAbierta(t));
+    const conFechas = cerradas.filter(t => t.fechaReporte && t.fechaCierre);
+    const horas = lista.reduce((s, t) => s + (t.horas || 0), 0);
+    return {
+      total: lista.length,
+      abiertas: lista.length - cerradas.length,
+      cerradas: cerradas.length,
+      criticasAbiertas: lista.filter(t => incidenciaAbierta(t) && t.prioridad === 'alta').length,
+      horas,
+      horasPromedio: lista.length ? Math.round(horas / lista.length * 10) / 10 : 0,
+      diasResolucion: conFechas.length
+        ? Math.round(conFechas.reduce((s, t) => s + Math.max(0, dias(t.fechaReporte, t.fechaCierre)), 0) / conFechas.length * 10) / 10
+        : null
+    };
+  }
+
+  function calidadProyecto (p) {
+    const r = resumenIncidencias(incidencias().filter(t => t.proyectoId === p.id));
+    const consumidas = sumaHoras(datos.registroHoras.filter(x => x.proyectoId === p.id));
+    return { ...r, pctHoras: consumidas ? Math.round(r.horas / consumidas * 1000) / 10 : 0 };
+  }
+
+  const calidadGlobal = () => resumenIncidencias(incidencias());
+
+  /* Semana a semana: cuántas se reportaron y cuántas se cerraron,
+     y cuántas quedaban abiertas al final de cada semana. */
+  function evolucionIncidencias (semanas = 8, proyectoId = null) {
+    const lista = incidencias().filter(t => !proyectoId || t.proyectoId === proyectoId);
+    const salida = [];
+    for (let k = semanas - 1; k >= 0; k--) {
+      const fin = -7 * k, inicio = fin - 6;                       // días relativos a hoy
+      const enRango = s => { if (!s) return false; const d = diasDesdeHoy(s); return d >= inicio && d <= fin; };
+      const hasta = s => s && diasDesdeHoy(s) <= fin;
+      const iso = n => { const d = new Date(HOY); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
+      salida.push({
+        inicio: iso(inicio), fin: iso(fin),
+        reportadas: lista.filter(t => enRango(t.fechaReporte)).length,
+        cerradas:   lista.filter(t => enRango(t.fechaCierre)).length,
+        abiertas:   lista.filter(t => hasta(t.fechaReporte) && !(t.fechaCierre && hasta(t.fechaCierre))).length
+      });
+    }
+    return salida;
+  }
+
+  /* --- desempeño financiero: SPI, CPI y rentabilidad ------- */
+  /* Valor ganado con el costo planeado como base (BAC):
+       PV = BAC × avance esperado   EV = BAC × avance real   AC = costo real
+       SPI = EV / PV   (≈ avanceReal / avanceEsperado)
+       CPI = EV / AC
+       EAC = BAC / CPI  → proyección de cierre en costo
+       Margen = (valor del contrato − costo) / valor del contrato          */
+  function desempeno (p) {
+    const bac = p.costoPlaneado || 0;
+    const pv  = bac * avanceEsperado(p) / 100;
+    const ev  = bac * p.avanceReal / 100;
+    const ac  = p.costoReal || 0;
+    const spi = pv ? ev / pv : null;
+    const cpi = ac ? ev / ac : null;
+    const eac = cpi ? bac / cpi : bac;
+    const margenPlan = p.valorContrato ? (p.valorContrato - bac) / p.valorContrato * 100 : 0;
+    const margenProyectado = p.valorContrato ? (p.valorContrato - eac) / p.valorContrato * 100 : 0;
+    const indice = v => v === null ? 'gris' : v >= 0.95 ? 'verde' : v >= 0.85 ? 'ambar' : 'rojo';
+    return {
+      bac, pv, ev, ac, eac, vac: bac - eac,
+      spi, cpi, margenPlan, margenProyectado,
+      utilidadProyectada: p.valorContrato - eac,
+      claveSpi: indice(spi), claveCpi: indice(cpi),
+      claveMargen: margenProyectado < 0 ? 'rojo' : margenProyectado < 15 ? 'ambar' : 'verde',
+      claveCosto: eac > bac * 1.10 ? 'rojo' : eac > bac ? 'ambar' : 'verde'
+    };
+  }
+
   /* --- cálculos de tareas ---------------------------------- */
   const estaVencida = t => t.estado !== 'completada' && diasDesdeHoy(t.fechaLimite) < 0;
   const enRiesgo    = t => t.estado !== 'completada' && !!t.riesgo;
@@ -187,14 +266,43 @@ const Estado = (function () {
       });
     });
 
+    proyectos().forEach(p => {
+      if (productividad(p).clave === 'rojo') {
+        const h = horasProyecto(p);
+        lista.push({
+          id: 'horas-' + p.id, tipo: 'horas',
+          titulo: `Horas sin avance: +${h.brecha} pts de consumo`,
+          detalle: `${p.nombre} · ${h.pctConsumo}% de horas para ${p.avanceReal}% de avance`, proyectoId: p.id
+        });
+      }
+      const d = desempeno(p);
+      if (d.margenProyectado < 0) lista.push({
+        id: 'costo-' + p.id, tipo: 'costo',
+        titulo: 'Proyecto proyectado a pérdida',
+        detalle: `${p.nombre} · margen al cierre ${Math.round(d.margenProyectado)}%`, proyectoId: p.id
+      });
+    });
+
+    const criticas = incidencias().filter(t => incidenciaAbierta(t) && t.prioridad === 'alta');
+    if (criticas.length) lista.push({
+      id: 'inc-criticas-' + criticas.map(t => t.id).join('-'), tipo: 'incidencia',
+      titulo: `${criticas.length} incidencia${criticas.length > 1 ? 's' : ''} crítica${criticas.length > 1 ? 's' : ''} abierta${criticas.length > 1 ? 's' : ''}`,
+      detalle: [...new Set(criticas.map(t => proyecto(t.proyectoId).nombre))].join(' · '),
+      proyectoId: null, destino: '#/calidad'
+    });
+
     const vencidasFact = facturas().filter(f => f.estado === 'pendiente' && diasDesdeHoy(f.vencimiento) < 0);
     if (vencidasFact.length) lista.push({
       id: 'fact-vencidas', tipo: 'factura',
       titulo: `${vencidasFact.length} factura${vencidasFact.length > 1 ? 's' : ''} vencida${vencidasFact.length > 1 ? 's' : ''}`,
-      detalle: 'Facturación pendiente de cobro', proyectoId: null
+      detalle: 'Facturación pendiente de cobro', proyectoId: null, destino: '#/facturacion'
     });
 
-    return lista.map(a => ({ ...a, atendida: datos.alertasAtendidas.includes(a.id) }));
+    return lista.map(a => ({
+      ...a,
+      destino: a.destino || (a.proyectoId ? '#/proyecto/' + a.proyectoId : '#/alertas'),
+      atendida: datos.alertasAtendidas.includes(a.id)
+    }));
   }
 
   const alertasAbiertas = () => alertas().filter(a => !a.atendida);
@@ -216,8 +324,35 @@ const Estado = (function () {
     const t = datos.tareas.find(x => x.id === id);
     if (!t) return;
     t.estado = t.estado === 'completada' ? 'pendiente' : 'completada';
+    if (t.esIncidencia) t.fechaCierre = t.estado === 'completada' ? hoyISO() : null;
     guardar();
     return t;
+  }
+
+  /* Cerrar una incidencia pide las horas que tomó atenderla */
+  function cerrarIncidencia (id, horasAdicionales) {
+    const t = datos.tareas.find(x => x.id === id);
+    if (!t) return;
+    t.horas = (t.horas || 0) + (Number(horasAdicionales) || 0);
+    t.estado = 'completada';
+    t.fechaCierre = hoyISO();
+    guardar();
+    return t;
+  }
+
+  function registrarHorasIncidencia (id, horasAdicionales) {
+    const t = datos.tareas.find(x => x.id === id);
+    if (!t) return;
+    t.horas = (t.horas || 0) + (Number(horasAdicionales) || 0);
+    guardar();
+    return t;
+  }
+
+  /* Cada exportación queda registrada (journey futuro, actividad 6) */
+  function registrarReporte ({ alcance, formato, interno }) {
+    datos.reportes = datos.reportes || [];
+    datos.reportes.unshift({ id: 'r' + Date.now(), fecha: hoyISO(), alcance, formato, interno: !!interno });
+    guardar();
   }
 
   function marcarFacturaPagada (id) {
@@ -228,7 +363,7 @@ const Estado = (function () {
     return factura;
   }
 
-  function crearTarea ({ nombre, proyectoId, responsableId, fechaLimite, prioridad, esIncidencia }) {
+  function crearTarea ({ nombre, proyectoId, responsableId, fechaLimite, prioridad, esIncidencia, horas }) {
     const t = {
       id: 't' + Date.now(),
       proyectoId, nombre, responsableId, fechaLimite,
@@ -237,6 +372,7 @@ const Estado = (function () {
       riesgo: null,
       esIncidencia: !!esIncidencia
     };
+    if (t.esIncidencia) Object.assign(t, { fechaReporte: hoyISO(), fechaCierre: null, horas: Number(horas) || 0 });
     datos.tareas.push(t);
     guardar();
     return t;
@@ -276,6 +412,9 @@ const Estado = (function () {
     facturas, registroHoras,
     avanceEsperado, desviacion, semaforo, proyeccionCierre,
     horasDelMes, horasPersona, horasProyecto, productividad, UMBRAL_PRODUCTIVIDAD,
+    incidenciaAbierta, calidadProyecto, calidadGlobal, evolucionIncidencias, desempeno,
+    reportes: () => datos.reportes || [],
+    cerrarIncidencia, registrarHorasIncidencia, registrarReporte,
     estaVencida, enRiesgo, tareasVencidas, tareasEnRiesgo, incidencias,
     alertas, alertasAbiertas, totales,
     alternarTarea, marcarFacturaPagada, crearTarea, reasignarTarea, guardarMitigacion, marcarRiesgo, atenderAlerta,

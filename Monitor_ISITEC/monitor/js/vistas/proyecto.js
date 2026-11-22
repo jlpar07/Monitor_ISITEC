@@ -1,6 +1,8 @@
 /* ===========================================================
    vistas/proyecto.js · Detalle de un proyecto
-   Pestañas: Tareas · Riesgos · Horas · Facturación
+   Pestañas: Tareas · Riesgos · Horas · Calidad · Facturación
+   Cabecera: avance, desviación y cierre proyectado, más la fila
+   de desempeño financiero (SPI, CPI, costo al cierre, margen).
    =========================================================== */
 
 const VistaProyecto = {
@@ -25,6 +27,7 @@ const VistaProyecto = {
     const proy = Estado.proyeccionCierre(p);
     const tareas = Estado.tareasDe(p.id);
     const riesgos = tareas.filter(Estado.enRiesgo);
+    const calidad = Estado.calidadProyecto(p);
 
     let cierreValor = '—', cierreNota = 'Sin datos suficientes', claseCierre = '';
     if (proy) {
@@ -67,12 +70,14 @@ const VistaProyecto = {
             <span class="m-nota">${cierreNota}</span>
           </div>
         </div>
+        ${this.filaFinanciera(p)}
       </div>
 
       <div class="pestanas">
         <button class="pestana ${this.pestana==='tareas'?'activa':''}" data-pestana="tareas">Tareas <b>${tareas.length}</b></button>
         <button class="pestana ${this.pestana==='riesgos'?'activa':''}" data-pestana="riesgos">Riesgos <b>${riesgos.length}</b></button>
         <button class="pestana ${this.pestana==='horas'?'activa':''}" data-pestana="horas">Horas</button>
+        <button class="pestana ${this.pestana==='calidad'?'activa':''}" data-pestana="calidad">Calidad ${calidad.abiertas ? `<b class="b-ambar">${calidad.abiertas}</b>` : ''}</button>
         <button class="pestana ${this.pestana==='facturacion'?'activa':''}" data-pestana="facturacion">Facturación</button>
       </div>
 
@@ -84,8 +89,93 @@ const VistaProyecto = {
     if (this.pestana === 'tareas')  return this.panelTareas(p);
     if (this.pestana === 'riesgos') return this.panelRiesgos(p);
     if (this.pestana === 'horas')   return this.panelHoras(p);
+    if (this.pestana === 'calidad') return this.panelCalidad(p);
     if (this.pestana === 'facturacion') return this.panelFacturacion(p);
     return '';
+  },
+
+  /* --- fila de desempeño financiero (SPI, CPI, costo, margen) */
+  filaFinanciera (p) {
+    const d = Estado.desempeno(p);
+    const costoNota = d.vac >= 0
+      ? `${UI.dinero(d.vac)} por debajo del presupuesto`
+      : `${UI.dinero(-d.vac)} por encima del presupuesto`;
+    return `
+      <div class="medidas medidas-finanzas">
+        <div class="medida">
+          <span class="m-label">SPI · cronograma</span>
+          <span class="m-valor ${d.claveSpi}">${UI.indice(d.spi)}</span>
+          <span class="m-nota">${d.spi === null ? 'sin plan a la fecha' : d.spi >= 1 ? 'adelantado al plan' : `avanza al ${Math.round(d.spi * 100)}% del ritmo planeado`}</span>
+        </div>
+        <div class="medida">
+          <span class="m-label">CPI · costos</span>
+          <span class="m-valor ${d.claveCpi}">${UI.indice(d.cpi)}</span>
+          <span class="m-nota">${d.cpi === null ? 'sin costo registrado' : `cada $1 gastado rinde $${UI.indice(d.cpi)}`}</span>
+        </div>
+        <div class="medida">
+          <span class="m-label">Costo proyectado al cierre</span>
+          <span class="m-valor ${d.claveCosto}">${UI.dinero(d.eac)}</span>
+          <span class="m-nota">${costoNota}</span>
+        </div>
+        <div class="medida">
+          <span class="m-label">Margen proyectado</span>
+          <span class="m-valor ${d.claveMargen}">${UI.pct(d.margenProyectado)}</span>
+          <span class="m-nota">planeado ${UI.pct(d.margenPlan)} · <button class="boton-texto" data-explicar-finanzas>¿Cómo se calcula?</button></span>
+        </div>
+      </div>`;
+  },
+
+  explicarFinanzas (p) {
+    const d = Estado.desempeno(p);
+    const m = UI.dinero;
+    UI.modal(`
+      <h2>Cómo se calculan los indicadores</h2>
+      <p class="modal-sub">${UI.escapar(p.nombre)} · método de valor ganado</p>
+      <table class="tabla formulas">
+        <tbody>
+          <tr><td><b>Presupuesto de costo (BAC)</b><br><small class="sub">del sistema contable</small></td><td>${m(d.bac)}</td></tr>
+          <tr><td><b>Valor planeado (PV)</b><br><small class="sub">BAC × avance esperado (${Estado.avanceEsperado(p)}%)</small></td><td>${m(d.pv)}</td></tr>
+          <tr><td><b>Valor ganado (EV)</b><br><small class="sub">BAC × avance real (${p.avanceReal}%)</small></td><td>${m(d.ev)}</td></tr>
+          <tr><td><b>Costo real (AC)</b><br><small class="sub">ejecutado a la fecha</small></td><td>${m(d.ac)}</td></tr>
+          <tr><td><b>SPI</b> = EV ÷ PV</td><td class="${d.claveSpi}"><b>${UI.indice(d.spi)}</b></td></tr>
+          <tr><td><b>CPI</b> = EV ÷ AC</td><td class="${d.claveCpi}"><b>${UI.indice(d.cpi)}</b></td></tr>
+          <tr><td><b>Costo al cierre (EAC)</b> = BAC ÷ CPI</td><td><b>${m(d.eac)}</b></td></tr>
+          <tr><td><b>Margen</b> = (contrato − EAC) ÷ contrato<br><small class="sub">contrato ${m(p.valorContrato)}</small></td><td class="${d.claveMargen}"><b>${UI.pct(d.margenProyectado)}</b></td></tr>
+        </tbody>
+      </table>
+      <p class="sub" style="font-size:12.5px;margin:14px 0 0">
+        Un índice de 1,00 significa que el proyecto va exactamente según el plan. Verde ≥ 0,95 · ámbar ≥ 0,85 · rojo por debajo.
+        Los costos son datos de ejemplo hasta conectar el sistema contable de ISITEC.
+      </p>
+      <div class="modal-acciones"><button class="boton primario" data-cerrar>Entendido</button></div>`);
+  },
+
+  /* --- pestaña CALIDAD ------------------------------------- */
+  panelCalidad (p) {
+    const c = Estado.calidadProyecto(p);
+    const lista = Estado.incidencias().filter(t => t.proyectoId === p.id)
+      .sort((a, b) => (Estado.incidenciaAbierta(b) - Estado.incidenciaAbierta(a))
+                   || String(b.fechaReporte).localeCompare(String(a.fechaReporte)));
+    const kpi = (label, valor, nota, clase) => `
+      <article class="kpi">
+        <div class="kpi-top"><span class="kpi-label">${label}</span></div>
+        <strong class="${clase || ''}">${valor}</strong><p>${nota}</p>
+      </article>`;
+    return `
+      <section class="kpis">
+        ${kpi('Incidencias', c.total, `${c.abiertas} abiertas · ${c.cerradas} cerradas`)}
+        ${kpi('Críticas abiertas', c.criticasAbiertas, 'severidad alta', c.criticasAbiertas ? 'rojo' : '')}
+        ${kpi('Horas en incidencias', c.horas + ' h', `${String(c.pctHoras).replace('.', ',')}% de las horas del proyecto`)}
+        ${kpi('Resolución promedio', c.diasResolucion === null ? '—' : String(c.diasResolucion).replace('.', ',') + ' días', 'de reportada a cerrada')}
+      </section>
+      <section class="panel">
+        <div class="panel-cabeza">
+          <div><h2>Incidencias del proyecto</h2><p>Al cerrarlas se registran las horas que tomó atenderlas</p></div>
+          <button class="boton sutil" data-reportar-incidencia>+ Reportar incidencia</button>
+        </div>
+        ${lista.length ? VistaCalidad.tablaIncidencias(lista, false)
+          : UI.vacio('Sin incidencias', 'Este proyecto no tiene incidencias reportadas.')}
+      </section>`;
   },
 
   /* --- pestaña HORAS --------------------------------------- */
@@ -294,9 +384,22 @@ const VistaProyecto = {
 
     raiz.querySelectorAll('[data-marcar]').forEach(el =>
       el.addEventListener('click', () => {
+        const actual = Estado.tareas().find(x => x.id === el.dataset.marcar);
+        /* Cerrar una incidencia pide las horas que tomó atenderla */
+        if (actual && actual.esIncidencia && actual.estado !== 'completada') {
+          VistaCalidad.abrirHoras(actual.id, true);
+          return;
+        }
         const t = Estado.alternarTarea(el.dataset.marcar);
         UI.toast(t.estado === 'completada' ? 'Tarea completada.' : 'Tarea reabierta.');
       }));
+
+    const explicar = raiz.querySelector('[data-explicar-finanzas]');
+    if (explicar) explicar.addEventListener('click', () => this.explicarFinanzas(Estado.proyecto(this.id)));
+
+    const reportar = raiz.querySelector('[data-reportar-incidencia]');
+    if (reportar) reportar.addEventListener('click', () => VistaCalidad.abrirReportar(this.id));
+    VistaCalidad.montarAcciones(raiz);
 
     raiz.querySelectorAll('[data-reasignar]').forEach(b =>
       b.addEventListener('click', () => this.abrirReasignar(b.dataset.reasignar)));

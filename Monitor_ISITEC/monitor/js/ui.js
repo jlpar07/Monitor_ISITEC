@@ -74,6 +74,27 @@ const UI = (function () {
     return `<div class="barra"><span class="${clase || ''}" style="width:${Math.min(100, pct)}%"></span></div>`;
   }
 
+  /* [fondo, tinta, icono] de cada tipo de alerta */
+  function estiloAlerta (tipo) {
+    return ({
+      vencida:    ['var(--rojo-claro)',  'var(--rojo)',    '!'],
+      bloqueo:    ['var(--ambar-claro)', 'var(--ambar)',   '△'],
+      factura:    ['#efebfb',            'var(--violeta)', '$'],
+      horas:      ['var(--rojo-claro)',  'var(--rojo)',    '⏱'],
+      costo:      ['var(--rojo-claro)',  'var(--rojo)',    '↓'],
+      incidencia: ['var(--ambar-claro)', 'var(--ambar)',   '✱']
+    })[tipo] || ['#eef1f6', '#5f6d85', '•'];
+  }
+
+  /* 0.6234 -> "0,62" */
+  function indice (v) {
+    return v === null || v === undefined ? '—' : v.toFixed(2).replace('.', ',');
+  }
+
+  function pct (v) {
+    return Math.round(v) + '%';
+  }
+
   function vacio (titulo, texto) {
     return `<div class="vacio"><strong>${escapar(titulo)}</strong>${escapar(texto || '')}</div>`;
   }
@@ -113,5 +134,6 @@ const UI = (function () {
 
   return { fecha, fechaLarga, dinero, dineroLargo, vencimiento, escapar,
            avatar, personaLinea, chipEstado, chipPrioridad, barra, vacio,
+           estiloAlerta, indice, pct,
            toast, modal, cerrarModal, descargar };
 })();
